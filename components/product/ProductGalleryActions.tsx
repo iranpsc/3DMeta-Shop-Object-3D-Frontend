@@ -304,14 +304,14 @@ export function ProductGalleryActions({ product }: Props) {
               ) : (
                 <>
                   {Number(product.final_price).toLocaleString("fa-IR")}
-                  <sub>(تومان)</sub>
+                  <sub>(ریال)</sub>
                 </>
               )}
             </p>
             {product.price ? (
               <p className="text-xs text-[#3A498087] line-through dark:text-gray-400">
                 {Number(product.price).toLocaleString("fa-IR")}
-                <sub>(تومان)</sub>
+                <sub>(ریال)</sub>
               </p>
             ) : null}
           </div>

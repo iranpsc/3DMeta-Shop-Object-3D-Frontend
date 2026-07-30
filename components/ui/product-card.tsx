@@ -15,7 +15,7 @@ function formatPrice(product: ProductCard): string {
   if (product.is_free) {
     return "رایگان";
   }
-  return `${formatNumber(product.final_price)} تومان`;
+  return `${formatNumber(product.final_price)} ریال`;
 }
 
 type ProductCardProps = {
