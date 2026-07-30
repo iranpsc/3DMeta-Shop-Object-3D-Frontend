@@ -25,7 +25,7 @@ const PARTNER_LINKS: Array<{ href: string; title: string; src: string; alt: stri
 
 export function AppFooter() {
   return (
-    <footer className="mx-auto w-full max-w-[1500px] px-5 lg:px-9 3xl:px-0">
+    <footer className="mx-auto w-full max-w-[1500px] px-5 mt-5 lg:px-9 3xl:px-0">
       <div className="items-ctener mb-10 mx-auto flex w-full flex-wrap items-center justify-between gap-1 rounded-2xl bg-white p-3 md:gap-2 dark:bg-[#1A1A18]">
         {PARTNER_LINKS.map((item) => (
           <a key={`${item.title}-${item.src}`} href={item.href} style={{ width: 55 }} target="_blank" rel="noreferrer" title={item.title}>
