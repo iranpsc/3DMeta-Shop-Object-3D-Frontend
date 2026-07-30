@@ -34,11 +34,7 @@ export function AppShell({ children }: AppShellProps) {
   }
 
   async function handleLogout() {
-    try {
-      await logout();
-    } finally {
-      window.location.href = "/";
-    }
+    await logout();
   }
 
   function openNav() {

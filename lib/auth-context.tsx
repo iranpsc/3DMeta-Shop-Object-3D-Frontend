@@ -64,8 +64,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       await apiLogout();
     } finally {
-      setUser(null);
-      setStatus("unauthenticated");
+      // Hard-navigate home without flipping local auth to "unauthenticated" first.
+      // On protected pages, that state change races with RequireAuth and sends the
+      // user back through /auth/redirect with the current URL as `intended`.
+      window.location.assign("/");
     }
   }, []);
 
