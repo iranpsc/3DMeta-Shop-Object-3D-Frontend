@@ -18,10 +18,19 @@ export function VerifyPayment({ params }: Props) {
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [paymentSuccess, setPaymentSuccess] = useState<boolean | null>(null);
 
   useEffect(() => {
     if (!params.Token) {
       setError("تراکنش مورد نظر یافت نشد.");
+      setPaymentSuccess(false);
+      setLoading(false);
+      return;
+    }
+
+    if (params.status !== "0") {
+      setError("پرداخت ناموفق بود.");
+      setPaymentSuccess(false);
       setLoading(false);
       return;
     }
@@ -30,6 +39,7 @@ export function VerifyPayment({ params }: Props) {
       .then(({ result: data, message: flash }) => {
         setResult(data);
         setMessage(flash ?? null);
+        setPaymentSuccess(data.success);
         if (!data.success) {
           setError("پرداخت ناموفق بود.");
         }
@@ -40,14 +50,13 @@ export function VerifyPayment({ params }: Props) {
             ? String((err as { message: string }).message)
             : "تراکنش مورد نظر یافت نشد.";
         setError(msg);
+        setPaymentSuccess(false);
       })
       .finally(() => setLoading(false));
   }, [params]);
 
   useToastMessage(error, "error");
   useToastMessage(result?.success ? (message ?? "پرداخت شما با موفقیت انجام شد.") : null, "success");
-
-  const paymentSuccess = result ? result.success : null;
 
   return (
     <PageWrapper title="نتیجه پرداخت">
