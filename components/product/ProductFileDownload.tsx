@@ -55,9 +55,7 @@ export function ProductFileDownload({ files, canDownload, className }: Props) {
       return;
     }
 
-    // Resolve relative `/download/...?signature=` against the current HTTPS origin.
-    // Absolute http:// URLs from APP_URL were blocked as Mixed Content on this page.
-    window.location.assign(new URL(target.url, window.location.origin).href);
+    window.location.assign(target.url);
   }
 
   if (files.length === 0) {
