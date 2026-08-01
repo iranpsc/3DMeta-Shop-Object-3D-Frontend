@@ -50,7 +50,7 @@ function CartRow({
           </h5>
         </div>
       </TableCell>
-      <TableCell>{formatPrice(product.final_price)} تومان</TableCell>
+      <TableCell>{formatPrice(product.final_price)} ریال</TableCell>
       <TableCell style={{ paddingRight: 0, paddingTop: 20 }}>
         <div className="relative mx-auto flex flex-row justify-center rounded-lg bg-transparent">
           <Button
@@ -78,7 +78,7 @@ function CartRow({
           </Button>
         </div>
       </TableCell>
-      <TableCell>{formatPrice(lineTotal)} تومان</TableCell>
+      <TableCell>{formatPrice(lineTotal)} ریال</TableCell>
       <TableCell>
         <Button
           variant="cart-remove"
@@ -221,7 +221,7 @@ export default function CartPageClient() {
                     </TableHeader>
                     <TableBody>
                       <TableRow className="text-primery-blue dark:text-[#E59819]">
-                        <TableCell className="py-2 text-left font-bold">{formatPrice(0)} تومان</TableCell>
+                        <TableCell className="py-2 text-left font-bold">{formatPrice(0)} ریال</TableCell>
                         <TableCell className="py-2 text-left">{formatPrice(0)} تومان</TableCell>
                         <TableCell className="py-2 text-left">{formatPrice(cart.total_price)} تومان</TableCell>
                       </TableRow>

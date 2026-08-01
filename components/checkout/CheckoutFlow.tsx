@@ -119,11 +119,11 @@ function PaymentStep({
                         <TableHead style={{ width: "20%" }}>{index + 1}</TableHead>
                         <TableCell style={{ width: "20%" }}>{product.name}</TableCell>
                         <TableCell style={{ width: "20%" }}>
-                          {formatPrice(product.final_price)} تومان
+                          {formatPrice(product.final_price)} ریال
                         </TableCell>
                         <TableCell style={{ width: "20%" }}>{quantity}</TableCell>
                         <TableCell style={{ width: "20%" }}>
-                          {formatPrice(product.final_price * quantity)} تومان
+                          {formatPrice(product.final_price * quantity)} ریال
                         </TableCell>
                       </TableRow>
                     );
@@ -136,7 +136,7 @@ function PaymentStep({
                       <h6>مجموع :</h6>
                     </TableCell>
                     <TableCell>
-                      <h5 className="text-primary">{formatPrice(checkout.total_price)} تومان</h5>
+                      <h5 className="text-primary">{formatPrice(checkout.total_price)} ریال</h5>
                     </TableCell>
                   </TableRow>
                 </TableFooter>
