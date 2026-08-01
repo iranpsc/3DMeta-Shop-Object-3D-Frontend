@@ -94,7 +94,7 @@ export default async function CategoriesPage({
             <Pagination
               currentPage={meta.current_page}
               lastPage={meta.last_page}
-              hrefForPage={(p) => `/categories?page=${p}`}
+              hrefPrefix="/categories?page="
               ariaLabel="صفحه‌بندی دسته‌بندی‌ها"
             />
           ) : null}

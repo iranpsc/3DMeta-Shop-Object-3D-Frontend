@@ -105,7 +105,7 @@ export default async function TagPage({
           <Pagination
             currentPage={data.products.meta.current_page}
             lastPage={data.products.meta.last_page}
-            hrefForPage={(p) => `/tags/${slug}?page=${p}`}
+            hrefPrefix={`/tags/${slug}?page=`}
             ariaLabel="صفحه‌بندی محصولات برچسب"
           />
         </div>

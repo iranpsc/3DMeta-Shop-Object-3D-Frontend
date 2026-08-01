@@ -9,6 +9,8 @@ type Props = {
   currentPage: number;
   lastPage: number;
   onPageChange?: (page: number) => void;
+  /** Server Component-safe alternative to hrefForPage (e.g. `/tags/foo?page=`). */
+  hrefPrefix?: string;
   hrefForPage?: (page: number) => string;
   disabled?: boolean;
   ariaLabel?: string;
@@ -56,6 +58,7 @@ export function Pagination({
   currentPage,
   lastPage,
   onPageChange,
+  hrefPrefix,
   hrefForPage,
   disabled,
   ariaLabel = "صفحه‌بندی",
@@ -66,6 +69,9 @@ export function Pagination({
   const items = getPaginationRange(currentPage, lastPage);
 
   function controlProps(page: number) {
+    if (hrefPrefix) {
+      return { href: `${hrefPrefix}${page}` };
+    }
     if (hrefForPage) {
       return { href: hrefForPage(page) };
     }
