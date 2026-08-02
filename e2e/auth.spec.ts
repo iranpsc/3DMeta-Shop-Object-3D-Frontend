@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { isAuthRedirectUrl } from "./helpers";
 
 test.describe("Auth shell", () => {
   test("login redirect points to Laravel OAuth", async ({ page }) => {
@@ -8,24 +9,10 @@ test.describe("Auth shell", () => {
     await page.goto("/", { waitUntil: "domcontentloaded" });
 
     await Promise.all([
-      page.waitForURL(
-        (url) => {
-          const href = url.href;
-          return (
-            href.includes(`${apiBase}/auth/redirect`) ||
-            href.includes("/oauth/authorize") ||
-            href.includes("accounts.irpsc.com")
-          );
-        },
-        { timeout: 15000 },
-      ),
+      page.waitForURL((url) => isAuthRedirectUrl(url, apiBase), { timeout: 15000 }),
       page.getByRole("button", { name: "login" }).click(),
     ]);
 
-    expect(
-      page.url().includes("/auth/redirect") ||
-        page.url().includes("/oauth/authorize") ||
-        page.url().includes("accounts.irpsc.com"),
-    ).toBeTruthy();
+    expect(isAuthRedirectUrl(new URL(page.url()), apiBase)).toBeTruthy();
   });
 });

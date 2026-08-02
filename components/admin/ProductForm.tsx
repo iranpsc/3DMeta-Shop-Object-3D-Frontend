@@ -18,6 +18,11 @@ type ProductFormProps = {
   submitLabel: string;
 };
 
+function stripHtmlToPlainText(html: string): string {
+  const doc = new DOMParser().parseFromString(html, "text/html");
+  return (doc.body.textContent ?? "").trim();
+}
+
 function chunkPairs<T>(items: T[]): T[][] {
   const pairs: T[][] = [];
   for (let i = 0; i < items.length; i += 2) {
@@ -236,7 +241,7 @@ export function ProductForm({ formData, initial, onSubmit, pending = false, subm
 
     const description =
       $ && summernoteRef.current ? String($(summernoteRef.current).summernote("code") ?? "") : longDescription;
-    const plainDescription = description.replace(/<[^>]*>/g, "").trim();
+    const plainDescription = stripHtmlToPlainText(description);
     if (!plainDescription) {
       showWarningToast("لطفا توضیحات محصول را وارد کنید.");
       return;

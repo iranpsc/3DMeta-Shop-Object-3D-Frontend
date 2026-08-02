@@ -1,5 +1,25 @@
 import { expect, type APIRequestContext, type Page, test } from "@playwright/test";
 
+const OAUTH_ACCOUNTS_HOST = "accounts.irpsc.com";
+
+export function isOAuthAccountsHost(url: URL): boolean {
+  const host = url.hostname.toLowerCase();
+  return host === OAUTH_ACCOUNTS_HOST || host.endsWith(`.${OAUTH_ACCOUNTS_HOST}`);
+}
+
+export function isAuthRedirectUrl(url: URL, apiBase: string): boolean {
+  try {
+    const base = new URL(apiBase);
+    if (url.origin === base.origin && url.pathname.startsWith("/auth/redirect")) {
+      return true;
+    }
+  } catch {
+    // ignore invalid apiBase in test env
+  }
+
+  return url.pathname.includes("/oauth/authorize") || isOAuthAccountsHost(url);
+}
+
 /**
  * Adds the first published product to the session cart via the product UI
  * (avoids direct API CSRF calls that conflict with Laravel Debugbar in dev).

@@ -10,6 +10,17 @@ type ProgressState = {
   progress: number;
 };
 
+const UNSAFE_HREF_SCHEMES = ["javascript:", "data:", "vbscript:"] as const;
+
+function hasUnsafeHrefScheme(href: string): boolean {
+  try {
+    const normalized = decodeURI(href).trim().toLowerCase();
+    return UNSAFE_HREF_SCHEMES.some((scheme) => normalized.startsWith(scheme));
+  } catch {
+    return true;
+  }
+}
+
 function urlsDiffer(nextUrl: string, currentUrl: string): boolean {
   try {
     const next = new URL(nextUrl, currentUrl);
@@ -39,7 +50,7 @@ function shouldStartFromAnchor(event: MouseEvent, anchor: HTMLAnchorElement): bo
   }
 
   const href = anchor.getAttribute("href");
-  if (!href || href.startsWith("#") || href.startsWith("javascript:")) {
+  if (!href || href.startsWith("#") || hasUnsafeHrefScheme(href)) {
     return false;
   }
 
