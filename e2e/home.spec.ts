@@ -16,16 +16,22 @@ test.describe("Home storefront", () => {
 
   test("search redirects to products", async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 720 });
+
+    const clientReady = page.waitForResponse(
+      (res) => res.url().includes("/api/v1/") && res.request().method() === "GET",
+      { timeout: 15000 },
+    );
     await page.goto("/", { waitUntil: "domcontentloaded" });
+    await clientReady;
 
     const desktop = page.locator("div.relative.mt-20.hidden.lg\\:flex");
     const input = desktop.getByPlaceholder("جستجوی محصول");
     await input.waitFor({ state: "visible" });
-    await input.click();
-    await input.pressSequentially("صندلی چوبی", { delay: 20 });
+    await input.fill("صندلی چوبی");
+    await expect(input).toHaveValue("صندلی چوبی");
 
     await Promise.all([
-      page.waitForURL(/\/products\?search=/, { timeout: 15000 }),
+      page.waitForURL(/\/products\?search=/, { timeout: 15000, waitUntil: "commit" }),
       desktop.getByRole("button", { name: "جستجو" }).click(),
     ]);
   });

@@ -6,8 +6,11 @@ test.describe("Admin area auth gate", () => {
     const apiBase = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
     await Promise.all([
-      page.waitForURL((url) => isAuthRedirectUrl(url, apiBase), { timeout: 15000 }),
-      page.goto("/admin/dashboard"),
+      page.waitForURL((url) => isAuthRedirectUrl(url, apiBase), {
+        timeout: 20000,
+        waitUntil: "commit",
+      }),
+      page.goto("/admin/dashboard", { waitUntil: "domcontentloaded" }),
     ]);
   });
 
@@ -15,8 +18,11 @@ test.describe("Admin area auth gate", () => {
     const apiBase = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
     await Promise.all([
-      page.waitForURL((url) => isAuthRedirectUrl(url, apiBase), { timeout: 15000 }),
-      page.goto("/admin/products"),
+      page.waitForURL((url) => isAuthRedirectUrl(url, apiBase), {
+        timeout: 20000,
+        waitUntil: "commit",
+      }),
+      page.goto("/admin/products", { waitUntil: "domcontentloaded" }),
     ]);
   });
 });

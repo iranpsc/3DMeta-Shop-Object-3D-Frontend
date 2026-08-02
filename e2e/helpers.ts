@@ -29,20 +29,45 @@ export async function seedCartWithFirstProduct(
   request: APIRequestContext,
 ): Promise<void> {
   const apiBase = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
-  const productsRes = await request.get(`${apiBase}/api/v1/products?take=1`);
+  // Free products show download, not add-to-cart — pick a paid one.
+  const productsRes = await request.get(`${apiBase}/api/v1/products?take=20`);
   const productsBody = await productsRes.json();
-  const product = productsBody?.data?.[0];
+  const product = (productsBody?.data ?? []).find(
+    (item: { sku?: string; is_free?: boolean }) => item?.sku && !item.is_free,
+  );
 
-  test.skip(!product?.sku, "No published products in API to test cart/checkout");
+  test.skip(!product?.sku, "No paid published products in API to test cart/checkout");
 
   await page.setViewportSize({ width: 1280, height: 720 });
+
+  const clientReady = page.waitForResponse(
+    (res) => res.url().includes("/api/v1/") && res.request().method() === "GET",
+    { timeout: 15000 },
+  );
   await page.goto(`/products/${product.sku}`, { waitUntil: "domcontentloaded" });
+  await clientReady;
 
-  const addButton = page.getByRole("button", { name: /افزودن به سبد خرید/i });
+  // Related product cards also expose this label — use the primary CTA.
+  const addButton = page.getByRole("button", { name: /افزودن به سبد خرید/i }).first();
   await addButton.waitFor({ state: "visible" });
-  await addButton.click();
+  await expect(addButton).toBeEnabled();
 
-  await expect(
-    page.getByText(/به سبد خرید اضافه شد|قبلا به سبد خرید اضافه شده است/i),
-  ).toBeVisible({ timeout: 15000 });
+  const cartPost = page.waitForResponse(
+    (res) =>
+      res.request().method() === "POST" &&
+      /\/api\/v1\/cart\/\d+/.test(res.url()),
+    { timeout: 15000 },
+  );
+
+  await addButton.click();
+  const response = await cartPost;
+  expect(
+    response.ok(),
+    `add-to-cart failed: ${response.status()} ${await response.text()}`,
+  ).toBeTruthy();
+
+  // Primary CTA flips to this label on success (more stable than flash copy).
+  await expect(page.getByRole("button", { name: /در سبد خرید/i }).first()).toBeVisible({
+    timeout: 15000,
+  });
 }
