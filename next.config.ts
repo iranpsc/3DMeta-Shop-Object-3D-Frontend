@@ -1,6 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Required for the production Docker image (copies only the runtime server).
+  output: "standalone",
   images: {
     remotePatterns: [
       {
@@ -12,6 +14,11 @@ const nextConfig: NextConfig = {
       {
         protocol: "https",
         hostname: "**.example.com",
+        pathname: "/storage/**",
+      },
+      {
+        protocol: "https",
+        hostname: "**.irpsc.com",
         pathname: "/storage/**",
       },
     ],

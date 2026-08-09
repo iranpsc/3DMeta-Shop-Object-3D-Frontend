@@ -1,0 +1,25 @@
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        DOCKER_REGISTRY: ${DOCKER_REGISTRY:-docker.arvancloud.ir}
+        NODE_VERSION: ${NODE_VERSION:-20}
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8000}
+    image: ${IMAGE_NAME:-docker.arvancloud.ir/3drgb/frontend}:${IMAGE_TAG:-latest}
+    restart: unless-stopped
+    ports:
+      - "${HOST_PORT:-3000}:3000"
+    environment:
+      NODE_ENV: production
+      PORT: "3000"
+      HOSTNAME: "0.0.0.0"
+      # Runtime fallback for server-side fetches (client bundle already baked at build).
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8000}
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3000/api/health"]
+      interval: 30s
+      timeout: 5s
+      start_period: 20s
+      retries: 3
