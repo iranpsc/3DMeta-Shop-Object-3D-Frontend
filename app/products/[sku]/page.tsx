@@ -4,7 +4,10 @@ import { notFound } from "next/navigation";
 import { ProductGalleryActions } from "@/components/product/ProductGalleryActions";
 import { ProductDetailTabs } from "@/components/product/ProductDetailTabs";
 import { SimilarProducts } from "@/components/product/SimilarProducts";
+import { JsonLd } from "@/components/seo/JsonLd";
 import { ServerApiError } from "@/lib/server-api";
+import { buildProductSchema } from "@/lib/seo-schemas";
+import { absoluteUrl } from "@/lib/site";
 import { fetchProduct, fetchProductReviews } from "@/lib/storefront-server-api";
 
 type Params = Promise<{ sku: string }>;
@@ -19,7 +22,8 @@ export async function generateMetadata({
     const product = await fetchProduct(sku);
     return {
       title: `${product.name} - ${product.sku} - فروشگاه آنلاین`,
-      description: product.short_description ?? undefined,
+      description:
+        product.long_description ?? product.short_description ?? undefined,
       openGraph: {
         title: product.name,
         description: product.short_description ?? undefined,
@@ -49,8 +53,11 @@ export default async function ProductDetailsPage({ params }: { params: Params })
     throw error;
   }
 
+  const pageUrl = absoluteUrl(product.url || `/products/${product.sku}`);
+
   return (
     <main>
+      <JsonLd data={buildProductSchema(product, pageUrl)} />
       <section className="mx-auto mt-20 max-w-[1500px] p-4 lg:mt-0 lg:p-9">
         <ProductGalleryActions product={product} />
         {product.tags && product.tags.length > 0 ? (

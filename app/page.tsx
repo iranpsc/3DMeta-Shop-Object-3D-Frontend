@@ -7,11 +7,13 @@ import { PopularCategories } from "@/components/home/PopularCategories";
 import { TabSwitcher } from "@/components/home/TabSwitcher";
 import { TopLevelCategorySlider } from "@/components/home/TopLevelCategorySlider";
 import { LegalTopBar } from "@/components/layout/LegalTopBar";
+import { JsonLd } from "@/components/seo/JsonLd";
 import {
   fetchHomeProducts,
   fetchPopularCategories,
   fetchTopLevelCategories,
 } from "@/lib/storefront-server-api";
+import { buildHomeWebSiteSchema } from "@/lib/seo-schemas";
 
 export const metadata: Metadata = {
   title: "سه بعدی متا - فروشگاه مدل های سه بعدی",
@@ -43,6 +45,7 @@ export default async function HomePage() {
 
   return (
     <div>
+      <JsonLd data={buildHomeWebSiteSchema()} />
       <main>
         <LegalTopBar />
 

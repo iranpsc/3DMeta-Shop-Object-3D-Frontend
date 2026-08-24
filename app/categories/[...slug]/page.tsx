@@ -25,6 +25,14 @@ export async function generateMetadata({
     return {
       title: category.name,
       description: category.description ?? undefined,
+      openGraph: {
+        title: category.name,
+        description: category.description ?? undefined,
+        images: [
+          category.image?.url ?? "/home-page/images/3d-Strawberry-3dmodel.jpg",
+        ],
+        type: "website",
+      },
     };
   } catch {
     return { title: "دسته بندی" };
