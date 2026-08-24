@@ -3,7 +3,7 @@ import { RequireAuth } from "@/components/auth/RequireAuth";
 import AdminCategoriesPageClient from "./AdminCategoriesPageClient";
 
 export const metadata: Metadata = {
-  title: "دسته‌بندی‌ها",
+  title: "دسته بندی ها",
 };
 
 export default function AdminCategoriesPage() {

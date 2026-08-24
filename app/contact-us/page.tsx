@@ -2,11 +2,10 @@ import type { Metadata } from "next";
 import { ContactForm } from "@/components/contact/ContactForm";
 import { LegalTopBar } from "@/components/layout/LegalTopBar";
 import { JsonLd } from "@/components/seo/JsonLd";
+import { contactUsMetadata } from "@/lib/page-metadata";
 import { buildContactPageSchema } from "@/lib/seo-schemas";
 
-export const metadata: Metadata = {
-  title: "تماس با ما",
-};
+export const metadata: Metadata = contactUsMetadata;
 
 export default function ContactUsPage() {
   return (

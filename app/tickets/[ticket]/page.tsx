@@ -3,7 +3,7 @@ import { RequireAuth } from "@/components/auth/RequireAuth";
 import ShowTicketPageClient from "./ShowTicketPageClient";
 
 export const metadata: Metadata = {
-  title: "پشتیبانی | جزئیات پیام",
+  title: "جزئیات تیکت",
 };
 
 type Props = {

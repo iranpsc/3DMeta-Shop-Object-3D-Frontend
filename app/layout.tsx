@@ -1,15 +1,11 @@
 import type { Metadata } from "next";
 import { Providers } from "@/components/providers";
 import { NavigationProgress } from "@/components/ui/navigation-progress";
+import { rootMetadata } from "@/lib/page-metadata";
 import "sweetalert2/dist/sweetalert2.min.css";
 import "./globals.css";
 
-export const metadata: Metadata = {
-  title: "سه بعدی متا",
-  description:
-    "سامانه سه بعدی متا با تعرفه ای ثابت مرکز عرضه جدید ترین مدل سه بعدی ، آیکون ، انیمیشن و دیگر فایل های طراحی میباشد .",
-  authors: [{ name: "سه بعدی متا" }],
-};
+export const metadata: Metadata = rootMetadata;
 
 export default function RootLayout({
   children,

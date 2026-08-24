@@ -3,7 +3,7 @@ import { RequireAuth } from "@/components/auth/RequireAuth";
 import EditTicketPageClient from "./EditTicketPageClient";
 
 export const metadata: Metadata = {
-  title: "پشتیبانی | بروزرسانی تیکت",
+  title: "ایجاد پیام",
 };
 
 type Props = {

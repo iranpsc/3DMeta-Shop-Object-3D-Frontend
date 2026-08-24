@@ -6,6 +6,7 @@ import { ProductCard } from "@/components/ui/product-card";
 import { LegalTopBar } from "@/components/layout/LegalTopBar";
 import { StorefrontBreadcrumb } from "@/components/layout/StorefrontBreadcrumb";
 import { TopLevelCategorySlider } from "@/components/home/TopLevelCategorySlider";
+import { pageMetadata } from "@/lib/page-metadata";
 import {
   fetchTagProducts,
   fetchTopLevelCategories,
@@ -22,10 +23,13 @@ export async function generateMetadata({
   try {
     const { slug } = await params;
     const data = await fetchTagProducts(slug);
-    return {
+    return pageMetadata({
       title: data.tag.name,
       description: `محصولات برچسب ${data.tag.name}`,
-    };
+      keywords: data.tag.name,
+      ogTitle: data.tag.name,
+      path: `/tags/${slug}`,
+    });
   } catch {
     return { title: "برچسب" };
   }

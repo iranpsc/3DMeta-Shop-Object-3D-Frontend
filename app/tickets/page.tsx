@@ -3,7 +3,7 @@ import { RequireAuth } from "@/components/auth/RequireAuth";
 import TicketsPageClient from "./TicketsPageClient";
 
 export const metadata: Metadata = {
-  title: "پشتیبانی",
+  title: "پیام ها",
 };
 
 export default function TicketsPage() {

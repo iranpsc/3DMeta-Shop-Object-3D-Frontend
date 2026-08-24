@@ -3,7 +3,7 @@ import { RequireAuth } from "@/components/auth/RequireAuth";
 import AdminReviewRepliesPageClient from "./AdminReviewRepliesPageClient";
 
 export const metadata: Metadata = {
-  title: "پاسخ های دیدگاه",
+  title: "پاسخ های کاربران",
 };
 
 type PageProps = {

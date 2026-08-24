@@ -3,7 +3,7 @@ import { RequireAuth } from "@/components/auth/RequireAuth";
 import CreateProductPageClient from "./CreateProductPageClient";
 
 export const metadata: Metadata = {
-  title: "محصول جدید",
+  title: "ایجاد محصول",
 };
 
 export default function CreateProductPage() {

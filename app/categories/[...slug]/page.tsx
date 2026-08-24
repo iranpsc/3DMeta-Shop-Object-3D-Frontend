@@ -6,6 +6,7 @@ import { ProductCard } from "@/components/ui/product-card";
 import { LegalTopBar } from "@/components/layout/LegalTopBar";
 import { StorefrontBreadcrumb } from "@/components/layout/StorefrontBreadcrumb";
 import { TopLevelCategorySlider } from "@/components/home/TopLevelCategorySlider";
+import { pageMetadata } from "@/lib/page-metadata";
 import {
   fetchCategory,
   fetchTopLevelCategories,
@@ -21,19 +22,20 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   try {
     const { slug } = await params;
-    const category = await fetchCategory(slug.join("/"));
-    return {
+    const slugPath = slug.join("/");
+    const category = await fetchCategory(slugPath);
+    const description = category.description ?? undefined;
+
+    return pageMetadata({
       title: category.name,
-      description: category.description ?? undefined,
-      openGraph: {
-        title: category.name,
-        description: category.description ?? undefined,
-        images: [
-          category.image?.url ?? "/home-page/images/3d-Strawberry-3dmodel.jpg",
-        ],
-        type: "website",
-      },
-    };
+      description,
+      keywords: category.name,
+      ogTitle: category.name,
+      ogDescription: description,
+      ogImage:
+        category.image?.url ?? "/home-page/images/3d-Strawberry-3dmodel.jpg",
+      path: `/categories/${slugPath}`,
+    });
   } catch {
     return { title: "دسته بندی" };
   }

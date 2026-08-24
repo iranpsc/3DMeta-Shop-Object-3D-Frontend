@@ -14,9 +14,9 @@ import {
 import { serverApiFetch } from "@/lib/server-api";
 import type { PaginationMeta, ProductCard as ProductType } from "@/lib/types";
 
-export const metadata: Metadata = {
-  title: "محصولات",
-};
+import { storeMetadata } from "@/lib/page-metadata";
+
+export const metadata: Metadata = storeMetadata;
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 

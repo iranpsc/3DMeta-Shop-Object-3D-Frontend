@@ -5,6 +5,7 @@ import { ProductGalleryActions } from "@/components/product/ProductGalleryAction
 import { ProductDetailTabs } from "@/components/product/ProductDetailTabs";
 import { SimilarProducts } from "@/components/product/SimilarProducts";
 import { JsonLd } from "@/components/seo/JsonLd";
+import { pageMetadata } from "@/lib/page-metadata";
 import { ServerApiError } from "@/lib/server-api";
 import { buildProductSchema } from "@/lib/seo-schemas";
 import { absoluteUrl } from "@/lib/site";
@@ -20,17 +21,19 @@ export async function generateMetadata({
   try {
     const { sku } = await params;
     const product = await fetchProduct(sku);
-    return {
+    const description =
+      product.short_description ?? product.long_description ?? undefined;
+    const image = product.images?.[0]?.url ?? product.image?.url ?? null;
+
+    return pageMetadata({
       title: `${product.name} - ${product.sku} - فروشگاه آنلاین`,
-      description:
-        product.long_description ?? product.short_description ?? undefined,
-      openGraph: {
-        title: product.name,
-        description: product.short_description ?? undefined,
-        images: product.images?.[0]?.url ? [product.images[0].url] : undefined,
-        type: "website",
-      },
-    };
+      description,
+      keywords: product.name,
+      ogTitle: product.name,
+      ogDescription: product.short_description ?? description,
+      ogImage: image,
+      path: product.url || `/products/${product.sku}`,
+    });
   } catch {
     return { title: "محصول" };
   }

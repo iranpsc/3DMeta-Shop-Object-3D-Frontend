@@ -1,11 +1,10 @@
 import type { Metadata } from "next";
 import { LegalTopBar } from "@/components/layout/LegalTopBar";
 import { JsonLd } from "@/components/seo/JsonLd";
+import { aboutUsMetadata } from "@/lib/page-metadata";
 import { buildAboutPageSchema } from "@/lib/seo-schemas";
 
-export const metadata: Metadata = {
-  title: "درباره ما",
-};
+export const metadata: Metadata = aboutUsMetadata;
 
 export default function AboutUsPage() {
   return (

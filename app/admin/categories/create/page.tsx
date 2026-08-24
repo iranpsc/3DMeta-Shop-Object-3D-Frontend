@@ -3,7 +3,7 @@ import { RequireAuth } from "@/components/auth/RequireAuth";
 import CreateCategoryPageClient from "./CreateCategoryPageClient";
 
 export const metadata: Metadata = {
-  title: "ایجاد دسته بندی جدید",
+  title: "ایجاد دسته بندی",
 };
 
 export default function CreateCategoryPage() {

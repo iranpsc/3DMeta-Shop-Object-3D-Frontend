@@ -10,9 +10,9 @@ import {
 } from "@/lib/storefront-server-api";
 import Link from "next/link";
 
-export const metadata: Metadata = {
-  title: "دسته بندی محصولات",
-};
+import { categoriesIndexMetadata } from "@/lib/page-metadata";
+
+export const metadata: Metadata = categoriesIndexMetadata;
 
 const DEFAULT_IMAGE = "/home-page/images/default-product.jpg";
 

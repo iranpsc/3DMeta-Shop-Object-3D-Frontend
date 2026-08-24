@@ -3,7 +3,7 @@ import { RequireAuth } from "@/components/auth/RequireAuth";
 import OrdersPageClient from "./OrdersPageClient";
 
 export const metadata: Metadata = {
-  title: "سفارشات",
+  title: "خریدها",
 };
 
 export default function OrdersPage() {
