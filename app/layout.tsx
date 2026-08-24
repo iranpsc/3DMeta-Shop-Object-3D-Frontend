@@ -14,12 +14,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="fa-IR" dir="rtl" className="loading-site js h-full antialiased">
-      <head>
-        <link rel="icon" type="image/x-icon" href="/home-page/images/3ddmetaa143.png" />
+      <body className="min-h-full font-bold">
         <link rel="stylesheet" href="/assets/css/style-rtl.css" />
         <link rel="stylesheet" href="/assets/vendor_assets/css/line-awesome.min.css" />
-      </head>
-      <body className="min-h-full font-bold">
         <NavigationProgress />
         <Providers>{children}</Providers>
       </body>

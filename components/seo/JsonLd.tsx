@@ -16,6 +16,7 @@ export function JsonLd({ data }: JsonLdProps) {
       dangerouslySetInnerHTML={{
         __html: JSON.stringify(payload).replace(/</g, "\\u003c"),
       }}
+      suppressHydrationWarning
     />
   );
 }

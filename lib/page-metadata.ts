@@ -15,6 +15,9 @@ export const rootMetadata: Metadata = {
     "سامانه سه بعدی متا با تعرفه ای ثابت مرکز عرضه جدید ترین مدل سه بعدی ، آیکون ، انیمیشن و دیگر فایل های طراحی میباشد .",
   keywords: DEFAULT_KEYWORDS,
   authors: [{ name: "سه بعدی متا" }],
+  icons: {
+    icon: "/home-page/images/3ddmetaa143.png",
+  },
   openGraph: {
     type: "website",
     locale: "fa_IR",

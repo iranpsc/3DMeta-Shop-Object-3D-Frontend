@@ -12,7 +12,7 @@ export function stripHtml(html?: string | null): string | undefined {
 
 /** Remove null/undefined and empty objects/arrays so Google validators don't see invalid fields. */
 export function stripEmpty(value: unknown): unknown {
-  if (value === null || value === undefined) return undefined;
+  if (value === null || value === undefined || value === "") return undefined;
   if (Array.isArray(value)) {
     const cleaned = value
       .map(stripEmpty)
