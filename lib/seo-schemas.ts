@@ -1,44 +1,128 @@
 import type { ProductDetail } from "@/lib/types";
 import { absoluteUrl, SITE_URL } from "@/lib/site";
+import {
+  DEFAULT_PRODUCT_IMAGE,
+  offerPriceValidUntil,
+  organizationLogo,
+  postalAddress,
+  resolveMediaUrl,
+  SCHEMA_CONTEXT,
+  stripEmpty,
+} from "@/lib/seo-utils";
 
-export function buildAvatarsPageSchema() {
+const ORGANIZATION_NAME = "سه بعدی متا فروشگاه";
+const BRAND_NAME = "سه بعدی متا";
+
+function productImages(product: ProductDetail): string[] {
+  const urls = new Set<string>();
+
+  for (const image of product.images ?? []) {
+    const resolved = resolveMediaUrl(image.url);
+    if (resolved) urls.add(resolved);
+  }
+
+  const primary = resolveMediaUrl(product.image?.url);
+  if (primary) urls.add(primary);
+
+  if (urls.size === 0) {
+    urls.add(absoluteUrl(DEFAULT_PRODUCT_IMAGE));
+  }
+
+  return [...urls];
+}
+
+function buildAggregateRating(product: ProductDetail) {
+  const reviewCount = product.approved_reviews_count ?? product.reviews_count ?? 0;
+  const ratingValue = Number(product.rating_avg ?? 0);
+
+  if (reviewCount <= 0 || !Number.isFinite(ratingValue) || ratingValue <= 0) {
+    return undefined;
+  }
+
   return {
-    "@context": "https://schema.org",
-    "@type": "WebPage",
-    name: "ساخت آواتار رایگان",
-    description:
-      "فقط با چند کلیک، یک آواتار سفارشی مطابق با سلیقه خودتان بسازید. کاملاً رایگان و بدون محدودیت!",
-    url: absoluteUrl("/avatars"),
-    author: {
+    "@type": "AggregateRating",
+    ratingValue: Math.round(ratingValue * 10) / 10,
+    reviewCount,
+    bestRating: 5,
+    worstRating: 1,
+  };
+}
+
+function buildOffer(pageUrl: string, product: ProductDetail) {
+  const inStock =
+    product.stock_status === true ||
+    (typeof product.quantity === "number" && product.quantity > 0);
+  const rawPrice = Number(product.final_price ?? product.price ?? 0);
+  const price = Number.isFinite(rawPrice) ? rawPrice : 0;
+
+  return {
+    "@type": "Offer",
+    url: pageUrl,
+    priceCurrency: "IRR",
+    price,
+    priceValidUntil: offerPriceValidUntil(),
+    availability: inStock
+      ? `${SCHEMA_CONTEXT}InStock`
+      : `${SCHEMA_CONTEXT}OutOfStock`,
+    itemCondition: `${SCHEMA_CONTEXT}NewCondition`,
+    seller: {
       "@type": "Organization",
-      name: "سبعدی متا",
-    },
-    mainEntity: {
-      "@type": "SoftwareApplication",
-      name: "ابزار ساخت آواتار",
-      operatingSystem: "All",
-      applicationCategory: "DesignApplication",
-      offers: {
-        "@type": "Offer",
-        price: "0",
-        priceCurrency: "IRR",
-        availability: "https://schema.org/InStock",
-      },
+      name: BRAND_NAME,
+      url: SITE_URL,
     },
   };
 }
 
+export function buildAvatarsPageSchema() {
+  const pageUrl = absoluteUrl("/avatars");
+
+  return stripEmpty({
+    "@context": SCHEMA_CONTEXT,
+    "@type": "WebPage",
+    "@id": `${pageUrl}#webpage`,
+    name: "ساخت آواتار رایگان",
+    description:
+      "فقط با چند کلیک، یک آواتار سفارشی مطابق با سلیقه خودتان بسازید. کاملاً رایگان و بدون محدودیت!",
+    url: pageUrl,
+    inLanguage: "fa-IR",
+    author: {
+      "@type": "Organization",
+      name: "سبعدی متا",
+      url: SITE_URL,
+    },
+    mainEntity: {
+      "@type": "SoftwareApplication",
+      name: "ابزار ساخت آواتار",
+      url: pageUrl,
+      operatingSystem: "Web",
+      applicationCategory: "DesignApplication",
+      offers: {
+        "@type": "Offer",
+        url: pageUrl,
+        price: 0,
+        priceCurrency: "IRR",
+        availability: `${SCHEMA_CONTEXT}InStock`,
+      },
+    },
+  }) as Record<string, unknown>;
+}
+
 export function buildAboutPageSchema() {
-  return {
-    "@context": "https://schema.org",
+  const pageUrl = absoluteUrl("/about-us");
+
+  return stripEmpty({
+    "@context": SCHEMA_CONTEXT,
     "@type": "AboutPage",
+    "@id": `${pageUrl}#aboutpage`,
     name: "About Us - سه بعدی متا فروشگاه",
-    url: absoluteUrl("/about-us"),
+    url: pageUrl,
+    inLanguage: "fa-IR",
     mainEntity: {
       "@type": "Organization",
-      name: "سه بعدی متا فروشگاه",
+      "@id": `${SITE_URL}#organization`,
+      name: ORGANIZATION_NAME,
       url: SITE_URL,
-      logo: absoluteUrl("/home-page/images/3d.png"),
+      logo: organizationLogo("/home-page/images/3d.png"),
       sameAs: [
         "https://www.youtube.com/channel/UCG9jK8hoh9X5YoTs6Z1zlIQ",
         "https://discord.gg/xqBe3h9hnN",
@@ -48,9 +132,9 @@ export function buildAboutPageSchema() {
       contactPoint: {
         "@type": "ContactPoint",
         telephone: "+989127855049",
-        contactType: "Customer Service",
+        contactType: "customer service",
         areaServed: "IR",
-        availableLanguage: "Persian",
+        availableLanguage: ["fa", "en"],
       },
       description:
         "سه بعدی متا فروشگاه پیشرو در زمینه چاپ سه بعدی است که خدمات حرفه‌ای و محصولات با کیفیت بالا ارائه می‌دهد.",
@@ -59,54 +143,55 @@ export function buildAboutPageSchema() {
         name: "هولدینگ زنجیره تامین بهشت",
       },
       foundingDate: "2020",
-      address: {
-        "@type": "PostalAddress",
-        addressCountry: "Iran",
+      address: postalAddress({
+        streetAddress: "Mirdamad, 824H+JG2",
         addressLocality: "Qazvin",
         addressRegion: "Qazvin Province",
-        streetAddress: "Mirdamad, 824H+JG2",
-      },
+      }),
     },
-  };
+  }) as Record<string, unknown>;
 }
 
 export function buildContactPageSchema() {
-  return {
-    "@context": "https://schema.org",
+  const pageUrl = absoluteUrl("/contact-us");
+
+  return stripEmpty({
+    "@context": SCHEMA_CONTEXT,
     "@type": "ContactPage",
+    "@id": `${pageUrl}#contactpage`,
     name: "Contact Us - سه بعدی متا فروشگاه",
-    url: absoluteUrl("/contact-us"),
+    url: pageUrl,
+    inLanguage: "fa-IR",
     mainEntity: {
       "@type": "Organization",
-      name: "سه بعدی متا فروشگاه",
+      "@id": `${SITE_URL}#organization`,
+      name: ORGANIZATION_NAME,
       url: SITE_URL,
-      logo: absoluteUrl("/home-page/images/3d.png"),
+      logo: organizationLogo("/home-page/images/3d.png"),
       contactPoint: [
         {
           "@type": "ContactPoint",
           telephone: "+989127855049",
-          contactType: "Customer Service",
+          contactType: "customer service",
           areaServed: "IR",
-          availableLanguage: ["Persian", "English"],
+          availableLanguage: ["fa", "en"],
           email: "info@example.com",
         },
         {
           "@type": "ContactPoint",
           telephone: "+989127855049",
-          contactType: "Sales",
+          contactType: "sales",
           areaServed: "IR",
-          availableLanguage: "Persian",
+          availableLanguage: ["fa"],
           email: "hq@irpsc.com",
         },
       ],
-      address: {
-        "@type": "PostalAddress",
+      address: postalAddress({
         streetAddress: "Mirdamad, 824H+JG2",
         addressLocality: "Qazvin",
         addressRegion: "Qazvin Province",
         postalCode: "123456789",
-        addressCountry: "Iran",
-      },
+      }),
       sameAs: [
         "https://www.youtube.com/channel/UCG9jK8hoh9X5YoTs6Z1zlIQ",
         "https://discord.gg/xqBe3h9hnN",
@@ -114,58 +199,41 @@ export function buildContactPageSchema() {
         "https://pin.it/7C5mYf6Q6",
       ],
     },
-  };
+  }) as Record<string, unknown>;
 }
 
 export function buildProductSchema(
   product: ProductDetail,
   pageUrl: string,
 ): Record<string, unknown> {
-  const inStock =
-    product.stock_status === true ||
-    (typeof product.quantity === "number" && product.quantity > 0);
-  const reviewCount = product.approved_reviews_count ?? product.reviews_count ?? 0;
-  const ratingValue = product.rating_avg ?? 0;
+  const images = productImages(product);
+  const description =
+    product.short_description?.trim() || product.long_description?.trim() || undefined;
 
-  const schema: Record<string, unknown> = {
-    "@context": "https://schema.org",
+  return stripEmpty({
+    "@context": SCHEMA_CONTEXT,
     "@type": "Product",
+    "@id": `${pageUrl}#product`,
     name: product.name,
+    url: pageUrl,
     sku: product.sku,
-    category: product.category?.name,
-    image: product.images?.[0]?.url ?? product.image?.url,
-    description: product.short_description ?? undefined,
-    offers: {
-      "@type": "Offer",
-      url: pageUrl,
-      priceCurrency: "IRR",
-      price: String(product.final_price ?? product.price),
-      availability: inStock
-        ? "https://schema.org/InStock"
-        : "https://schema.org/OutOfStock",
-      itemCondition: "https://schema.org/NewCondition",
-      seller: {
-        "@type": "Organization",
-        name: "سه بعدی متا",
-      },
+    description,
+    image: images,
+    brand: {
+      "@type": "Brand",
+      name: BRAND_NAME,
     },
-  };
-
-  if (reviewCount > 0) {
-    schema.aggregateRating = {
-      "@type": "AggregateRating",
-      ratingValue: String(Math.round(Number(ratingValue))),
-      reviewCount: String(reviewCount),
-    };
-  }
-
-  return schema;
+    category: product.category?.name,
+    offers: buildOffer(pageUrl, product),
+    aggregateRating: buildAggregateRating(product),
+  }) as Record<string, unknown>;
 }
 
 export function buildHomeWebSiteSchema() {
-  return {
-    "@context": "https://schema.org",
+  return stripEmpty({
+    "@context": SCHEMA_CONTEXT,
     "@type": "WebSite",
+    "@id": `${SITE_URL}#website`,
     name: "سه بعدی متا",
     url: SITE_URL,
     description:
@@ -173,9 +241,10 @@ export function buildHomeWebSiteSchema() {
     inLanguage: "fa-IR",
     publisher: {
       "@type": "Organization",
-      name: "سه بعدی متا فروشگاه",
+      "@id": `${SITE_URL}#organization`,
+      name: ORGANIZATION_NAME,
       url: SITE_URL,
-      logo: absoluteUrl("/home-page/images/3d.png"),
+      logo: organizationLogo("/home-page/images/3d.png"),
     },
     potentialAction: {
       "@type": "SearchAction",
@@ -185,5 +254,5 @@ export function buildHomeWebSiteSchema() {
       },
       "query-input": "required name=search_term_string",
     },
-  };
+  }) as Record<string, unknown>;
 }
