@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { absoluteUrl, SITE_URL } from "@/lib/site";
+import { stripHtml } from "@/lib/seo-utils";
 
 /** Default Open Graph image used when a page does not set its own. */
 export const DEFAULT_OG_IMAGE = "/home-page/images/Asset2.png";
@@ -58,12 +59,17 @@ export function pageMetadata({
 }: PageMetaInput): Metadata {
   const image = ogImage || DEFAULT_OG_IMAGE;
   const resolvedOgTitle = ogTitle ?? title;
-  const resolvedOgDescription = ogDescription ?? description;
+  const resolvedOgDescription = stripHtml(ogDescription ?? description);
+  const cleanDescription = stripHtml(description);
+  const url = path ? absoluteUrl(path) : undefined;
 
   return {
     title,
-    description,
+    description: cleanDescription,
     keywords,
+    alternates: {
+      canonical: url,
+    },
     openGraph: {
       type: ogType,
       locale: "fa_IR",
@@ -71,7 +77,7 @@ export function pageMetadata({
       title: resolvedOgTitle,
       description: resolvedOgDescription,
       images: image ? [image] : undefined,
-      url: path ? absoluteUrl(path) : undefined,
+      url,
     },
     twitter: {
       card: "summary_large_image",

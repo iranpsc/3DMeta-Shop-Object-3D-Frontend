@@ -1,8 +1,14 @@
 import { absoluteUrl } from "@/lib/site";
 
-export const SCHEMA_CONTEXT = "https://schema.org/";
+export const SCHEMA_CONTEXT = "https://schema.org";
 
 export const DEFAULT_PRODUCT_IMAGE = "/home-page/images/Asset2.png";
+
+/** Strip HTML tags from a string. Helpful for SEO descriptions. */
+export function stripHtml(html?: string | null): string | undefined {
+  if (!html) return undefined;
+  return html.replace(/<[^>]*>?/gm, "").trim() || undefined;
+}
 
 /** Remove null/undefined and empty objects/arrays so Google validators don't see invalid fields. */
 export function stripEmpty(value: unknown): unknown {

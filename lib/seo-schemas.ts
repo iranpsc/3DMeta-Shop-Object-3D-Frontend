@@ -8,6 +8,7 @@ import {
   resolveMediaUrl,
   SCHEMA_CONTEXT,
   stripEmpty,
+  stripHtml,
 } from "@/lib/seo-utils";
 
 const ORGANIZATION_NAME = "سه بعدی متا فروشگاه";
@@ -62,9 +63,9 @@ function buildOffer(pageUrl: string, product: ProductDetail) {
     price,
     priceValidUntil: offerPriceValidUntil(),
     availability: inStock
-      ? `${SCHEMA_CONTEXT}InStock`
-      : `${SCHEMA_CONTEXT}OutOfStock`,
-    itemCondition: `${SCHEMA_CONTEXT}NewCondition`,
+      ? `${SCHEMA_CONTEXT}/InStock`
+      : `${SCHEMA_CONTEXT}/OutOfStock`,
+    itemCondition: `${SCHEMA_CONTEXT}/NewCondition`,
     seller: {
       "@type": "Organization",
       name: BRAND_NAME,
@@ -101,7 +102,7 @@ export function buildAvatarsPageSchema() {
         url: pageUrl,
         price: 0,
         priceCurrency: "IRR",
-        availability: `${SCHEMA_CONTEXT}InStock`,
+        availability: `${SCHEMA_CONTEXT}/InStock`,
       },
     },
   }) as Record<string, unknown>;
@@ -208,7 +209,7 @@ export function buildProductSchema(
 ): Record<string, unknown> {
   const images = productImages(product);
   const description =
-    product.short_description?.trim() || product.long_description?.trim() || undefined;
+    stripHtml(product.short_description) || stripHtml(product.long_description) || undefined;
 
   return stripEmpty({
     "@context": SCHEMA_CONTEXT,
