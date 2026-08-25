@@ -7,6 +7,7 @@ import { LegalTopBar } from "@/components/layout/LegalTopBar";
 import { StorefrontBreadcrumb } from "@/components/layout/StorefrontBreadcrumb";
 import { TopLevelCategorySlider } from "@/components/home/TopLevelCategorySlider";
 import { pageMetadata } from "@/lib/page-metadata";
+import { getSiteUrl } from "@/lib/site";
 import {
   fetchTagProducts,
   fetchTopLevelCategories,
@@ -29,6 +30,7 @@ export async function generateMetadata({
       keywords: data.tag.name,
       ogTitle: data.tag.name,
       path: `/tags/${slug}`,
+      siteUrl: await getSiteUrl(),
     });
   } catch {
     return { title: "برچسب" };

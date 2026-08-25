@@ -7,6 +7,7 @@ import { LegalTopBar } from "@/components/layout/LegalTopBar";
 import { StorefrontBreadcrumb } from "@/components/layout/StorefrontBreadcrumb";
 import { TopLevelCategorySlider } from "@/components/home/TopLevelCategorySlider";
 import { pageMetadata } from "@/lib/page-metadata";
+import { getSiteUrl } from "@/lib/site";
 import {
   fetchCategory,
   fetchTopLevelCategories,
@@ -35,6 +36,7 @@ export async function generateMetadata({
       ogImage:
         category.image?.url ?? "/home-page/images/3d-Strawberry-3dmodel.jpg",
       path: `/categories/${slugPath}`,
+      siteUrl: await getSiteUrl(),
     });
   } catch {
     return { title: "دسته بندی" };

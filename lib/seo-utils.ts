@@ -31,17 +31,20 @@ export function stripEmpty(value: unknown): unknown {
 }
 
 /** Resolve image URLs to absolute https URLs required by Google Product schema. */
-export function resolveMediaUrl(url?: string | null): string | undefined {
+export function resolveMediaUrl(
+  url?: string | null,
+  baseUrl?: string,
+): string | undefined {
   if (!url?.trim()) return undefined;
   const trimmed = url.trim();
   if (/^https?:\/\//i.test(trimmed)) return trimmed;
-  return absoluteUrl(trimmed);
+  return absoluteUrl(trimmed, baseUrl);
 }
 
-export function organizationLogo(path: string) {
+export function organizationLogo(path: string, baseUrl?: string) {
   return {
     "@type": "ImageObject",
-    url: resolveMediaUrl(path) ?? absoluteUrl(path),
+    url: resolveMediaUrl(path, baseUrl) ?? absoluteUrl(path, baseUrl),
   };
 }
 

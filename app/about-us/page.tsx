@@ -6,10 +6,10 @@ import { buildAboutPageSchema } from "@/lib/seo-schemas";
 
 export const metadata: Metadata = aboutUsMetadata;
 
-export default function AboutUsPage() {
+export default async function AboutUsPage() {
   return (
     <div>
-      <JsonLd data={buildAboutPageSchema()} />
+      <JsonLd data={await buildAboutPageSchema()} />
       <main>
         <LegalTopBar />
         <section className="mx-auto mt-24 max-w-[1500px] p-4 lg:mt-14 lg:p-9">

@@ -7,10 +7,10 @@ import { buildContactPageSchema } from "@/lib/seo-schemas";
 
 export const metadata: Metadata = contactUsMetadata;
 
-export default function ContactUsPage() {
+export default async function ContactUsPage() {
   return (
     <div>
-      <JsonLd data={buildContactPageSchema()} />
+      <JsonLd data={await buildContactPageSchema()} />
       <main>
         <LegalTopBar />
         <section className="mx-auto mt-24 max-w-[1500px] p-4 lg:mt-14 lg:p-9">

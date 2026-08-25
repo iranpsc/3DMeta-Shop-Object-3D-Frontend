@@ -1,5 +1,5 @@
 import type { ProductDetail } from "@/lib/types";
-import { absoluteUrl, SITE_URL } from "@/lib/site";
+import { absoluteUrl, getSiteUrl } from "@/lib/site";
 import {
   DEFAULT_PRODUCT_IMAGE,
   offerPriceValidUntil,
@@ -14,19 +14,19 @@ import {
 const ORGANIZATION_NAME = "سه بعدی متا فروشگاه";
 const BRAND_NAME = "سه بعدی متا";
 
-function productImages(product: ProductDetail): string[] {
+function productImages(product: ProductDetail, siteUrl: string): string[] {
   const urls = new Set<string>();
 
   for (const image of product.images ?? []) {
-    const resolved = resolveMediaUrl(image.url);
+    const resolved = resolveMediaUrl(image.url, siteUrl);
     if (resolved) urls.add(resolved);
   }
 
-  const primary = resolveMediaUrl(product.image?.url);
+  const primary = resolveMediaUrl(product.image?.url, siteUrl);
   if (primary) urls.add(primary);
 
   if (urls.size === 0) {
-    urls.add(absoluteUrl(DEFAULT_PRODUCT_IMAGE));
+    urls.add(absoluteUrl(DEFAULT_PRODUCT_IMAGE, siteUrl));
   }
 
   return [...urls];
@@ -49,7 +49,7 @@ function buildAggregateRating(product: ProductDetail) {
   };
 }
 
-function buildOffer(pageUrl: string, product: ProductDetail) {
+function buildOffer(pageUrl: string, product: ProductDetail, siteUrl: string) {
   const inStock =
     product.stock_status === true ||
     (typeof product.quantity === "number" && product.quantity > 0);
@@ -69,13 +69,14 @@ function buildOffer(pageUrl: string, product: ProductDetail) {
     seller: {
       "@type": "Organization",
       name: BRAND_NAME,
-      url: SITE_URL,
+      url: siteUrl,
     },
   };
 }
 
-export function buildAvatarsPageSchema() {
-  const pageUrl = absoluteUrl("/avatars");
+export async function buildAvatarsPageSchema() {
+  const siteUrl = await getSiteUrl();
+  const pageUrl = absoluteUrl("/avatars", siteUrl);
 
   return stripEmpty({
     "@context": SCHEMA_CONTEXT,
@@ -89,7 +90,7 @@ export function buildAvatarsPageSchema() {
     author: {
       "@type": "Organization",
       name: "سبعدی متا",
-      url: SITE_URL,
+      url: siteUrl,
     },
     mainEntity: {
       "@type": "SoftwareApplication",
@@ -108,8 +109,9 @@ export function buildAvatarsPageSchema() {
   }) as Record<string, unknown>;
 }
 
-export function buildAboutPageSchema() {
-  const pageUrl = absoluteUrl("/about-us");
+export async function buildAboutPageSchema() {
+  const siteUrl = await getSiteUrl();
+  const pageUrl = absoluteUrl("/about-us", siteUrl);
 
   return stripEmpty({
     "@context": SCHEMA_CONTEXT,
@@ -120,10 +122,10 @@ export function buildAboutPageSchema() {
     inLanguage: "fa-IR",
     mainEntity: {
       "@type": "Organization",
-      "@id": `${SITE_URL}#organization`,
+      "@id": `${siteUrl}#organization`,
       name: ORGANIZATION_NAME,
-      url: SITE_URL,
-      logo: organizationLogo("/home-page/images/3d.png"),
+      url: siteUrl,
+      logo: organizationLogo("/home-page/images/3d.png", siteUrl),
       sameAs: [
         "https://www.youtube.com/channel/UCG9jK8hoh9X5YoTs6Z1zlIQ",
         "https://discord.gg/xqBe3h9hnN",
@@ -153,8 +155,9 @@ export function buildAboutPageSchema() {
   }) as Record<string, unknown>;
 }
 
-export function buildContactPageSchema() {
-  const pageUrl = absoluteUrl("/contact-us");
+export async function buildContactPageSchema() {
+  const siteUrl = await getSiteUrl();
+  const pageUrl = absoluteUrl("/contact-us", siteUrl);
 
   return stripEmpty({
     "@context": SCHEMA_CONTEXT,
@@ -165,10 +168,10 @@ export function buildContactPageSchema() {
     inLanguage: "fa-IR",
     mainEntity: {
       "@type": "Organization",
-      "@id": `${SITE_URL}#organization`,
+      "@id": `${siteUrl}#organization`,
       name: ORGANIZATION_NAME,
-      url: SITE_URL,
-      logo: organizationLogo("/home-page/images/3d.png"),
+      url: siteUrl,
+      logo: organizationLogo("/home-page/images/3d.png", siteUrl),
       contactPoint: [
         {
           "@type": "ContactPoint",
@@ -203,11 +206,12 @@ export function buildContactPageSchema() {
   }) as Record<string, unknown>;
 }
 
-export function buildProductSchema(
+export async function buildProductSchema(
   product: ProductDetail,
   pageUrl: string,
-): Record<string, unknown> {
-  const images = productImages(product);
+): Promise<Record<string, unknown>> {
+  const siteUrl = await getSiteUrl();
+  const images = productImages(product, siteUrl);
   const description =
     stripHtml(product.short_description) || stripHtml(product.long_description) || undefined;
 
@@ -225,38 +229,40 @@ export function buildProductSchema(
       name: BRAND_NAME,
     },
     category: product.category?.name,
-    offers: buildOffer(pageUrl, product),
+    offers: buildOffer(pageUrl, product, siteUrl),
     aggregateRating: buildAggregateRating(product),
   }) as Record<string, unknown>;
 }
 
-export function buildHomeWebSiteSchema() {
+export async function buildHomeWebSiteSchema() {
+  const siteUrl = await getSiteUrl();
+
   const org = {
     "@context": SCHEMA_CONTEXT,
     "@type": "Organization",
-    "@id": `${SITE_URL}#organization`,
+    "@id": `${siteUrl}#organization`,
     name: ORGANIZATION_NAME,
-    url: SITE_URL,
-    logo: organizationLogo("/home-page/images/3d.png"),
+    url: siteUrl,
+    logo: organizationLogo("/home-page/images/3d.png", siteUrl),
   };
 
   const website = {
     "@context": SCHEMA_CONTEXT,
     "@type": "WebSite",
-    "@id": `${SITE_URL}#website`,
+    "@id": `${siteUrl}#website`,
     name: "سه بعدی متا",
-    url: SITE_URL,
+    url: siteUrl,
     description:
       "مرکز عرضه جدیدترین مدل سه بعدی، آیکون، انیمیشن و فایل های طراحی با تعرفه ثابت",
     inLanguage: "fa-IR",
     publisher: {
-      "@id": `${SITE_URL}#organization`,
+      "@id": `${siteUrl}#organization`,
     },
     potentialAction: {
       "@type": "SearchAction",
       target: {
         "@type": "EntryPoint",
-        urlTemplate: `${SITE_URL}/products?search={search_term_string}`,
+        urlTemplate: `${siteUrl}/products?search={search_term_string}`,
       },
       "query-input": "required name=search_term_string",
     },

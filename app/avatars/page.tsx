@@ -7,10 +7,10 @@ import AvatarsPageClient from "./AvatarsPageClient";
 
 export const metadata: Metadata = avatarsMetadata;
 
-export default function AvatarsPage() {
+export default async function AvatarsPage() {
   return (
     <>
-      <JsonLd data={buildAvatarsPageSchema()} />
+      <JsonLd data={await buildAvatarsPageSchema()} />
       <RequireAuth>
         <AvatarsPageClient />
       </RequireAuth>

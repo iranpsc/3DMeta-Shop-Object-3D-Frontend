@@ -8,7 +8,7 @@ import { JsonLd } from "@/components/seo/JsonLd";
 import { pageMetadata } from "@/lib/page-metadata";
 import { ServerApiError } from "@/lib/server-api";
 import { buildProductSchema } from "@/lib/seo-schemas";
-import { absoluteUrl } from "@/lib/site";
+import { absoluteUrlAsync, getSiteUrl } from "@/lib/site";
 import { fetchProduct, fetchProductReviews } from "@/lib/storefront-server-api";
 
 type Params = Promise<{ sku: string }>;
@@ -24,6 +24,7 @@ export async function generateMetadata({
     const description =
       product.short_description ?? product.long_description ?? undefined;
     const image = product.images?.[0]?.url ?? product.image?.url ?? null;
+    const siteUrl = await getSiteUrl();
 
     return pageMetadata({
       title: `${product.name} - ${product.sku} - فروشگاه آنلاین`,
@@ -33,6 +34,7 @@ export async function generateMetadata({
       ogDescription: product.short_description ?? description,
       ogImage: image,
       path: product.url || `/products/${product.sku}`,
+      siteUrl,
     });
   } catch {
     return { title: "محصول" };
@@ -56,11 +58,11 @@ export default async function ProductDetailsPage({ params }: { params: Params })
     throw error;
   }
 
-  const pageUrl = absoluteUrl(product.url || `/products/${product.sku}`);
+  const pageUrl = await absoluteUrlAsync(product.url || `/products/${product.sku}`);
 
   return (
     <main>
-      <JsonLd data={buildProductSchema(product, pageUrl)} />
+      <JsonLd data={await buildProductSchema(product, pageUrl)} />
       <section className="mx-auto mt-20 max-w-[1500px] p-4 lg:mt-0 lg:p-9">
         <ProductGalleryActions product={product} />
         {product.tags && product.tags.length > 0 ? (

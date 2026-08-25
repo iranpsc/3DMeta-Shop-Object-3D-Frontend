@@ -35,7 +35,7 @@ export default async function HomePage() {
 
   return (
     <div>
-      <JsonLd data={buildHomeWebSiteSchema()} />
+      <JsonLd data={await buildHomeWebSiteSchema()} />
       <main>
         <LegalTopBar />
 

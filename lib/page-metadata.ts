@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
-import { absoluteUrl, SITE_URL } from "@/lib/site";
+import { absoluteUrl, getSiteUrlSync } from "@/lib/site";
 import { stripHtml } from "@/lib/seo-utils";
+
+const SITE_URL = getSiteUrlSync();
 
 /** Default Open Graph image used when a page does not set its own. */
 export const DEFAULT_OG_IMAGE = "/home-page/images/Asset2.png";
@@ -47,6 +49,8 @@ type PageMetaInput = {
   /** Livewire used `product` on product/category pages; Next typed OG uses website. */
   ogType?: "website" | "article";
   path?: string;
+  /** Override origin (from getSiteUrl()) so canonicals match the app host. */
+  siteUrl?: string;
 };
 
 /** Build Next.js Metadata mirroring Livewire @section title/description/og fields. */
@@ -59,12 +63,14 @@ export function pageMetadata({
   ogImage,
   ogType = "website",
   path,
+  siteUrl,
 }: PageMetaInput): Metadata {
   const image = ogImage || DEFAULT_OG_IMAGE;
   const resolvedOgTitle = ogTitle ?? title;
   const resolvedOgDescription = stripHtml(ogDescription ?? description);
   const cleanDescription = stripHtml(description);
-  const url = path ? absoluteUrl(path) : undefined;
+  const base = siteUrl ?? getSiteUrlSync();
+  const url = path ? absoluteUrl(path, base) : undefined;
 
   return {
     title,
