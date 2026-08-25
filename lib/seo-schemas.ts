@@ -231,7 +231,16 @@ export function buildProductSchema(
 }
 
 export function buildHomeWebSiteSchema() {
-  return stripEmpty({
+  const org = {
+    "@context": SCHEMA_CONTEXT,
+    "@type": "Organization",
+    "@id": `${SITE_URL}#organization`,
+    name: ORGANIZATION_NAME,
+    url: SITE_URL,
+    logo: organizationLogo("/home-page/images/3d.png"),
+  };
+
+  const website = {
     "@context": SCHEMA_CONTEXT,
     "@type": "WebSite",
     "@id": `${SITE_URL}#website`,
@@ -241,11 +250,7 @@ export function buildHomeWebSiteSchema() {
       "مرکز عرضه جدیدترین مدل سه بعدی، آیکون، انیمیشن و فایل های طراحی با تعرفه ثابت",
     inLanguage: "fa-IR",
     publisher: {
-      "@type": "Organization",
       "@id": `${SITE_URL}#organization`,
-      name: ORGANIZATION_NAME,
-      url: SITE_URL,
-      logo: organizationLogo("/home-page/images/3d.png"),
     },
     potentialAction: {
       "@type": "SearchAction",
@@ -255,5 +260,7 @@ export function buildHomeWebSiteSchema() {
       },
       "query-input": "required name=search_term_string",
     },
-  }) as Record<string, unknown>;
+  };
+
+  return stripEmpty([org, website]) as Record<string, unknown>[];
 }
