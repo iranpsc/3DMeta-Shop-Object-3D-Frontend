@@ -4,13 +4,14 @@ import { Pagination } from "@/components/ui/pagination";
 import { LegalTopBar } from "@/components/layout/LegalTopBar";
 import { StorefrontBreadcrumb } from "@/components/layout/StorefrontBreadcrumb";
 import { TopLevelCategorySlider } from "@/components/home/TopLevelCategorySlider";
+import { JsonLd } from "@/components/seo/JsonLd";
 import {
   fetchCategoriesPage,
   fetchTopLevelCategories,
 } from "@/lib/storefront-server-api";
-import Link from "next/link";
-
 import { categoriesIndexMetadata } from "@/lib/page-metadata";
+import { buildCategoriesIndexSchema } from "@/lib/seo-schemas";
+import Link from "next/link";
 
 export const metadata: Metadata = categoriesIndexMetadata;
 
@@ -45,6 +46,7 @@ export default async function CategoriesPage({
 
   return (
     <main>
+      <JsonLd data={await buildCategoriesIndexSchema(categories)} />
       <LegalTopBar />
       <section className="mx-auto mt-24 max-w-[1500px] p-4 lg:mt-4 lg:p-9 lg:pt-0">
         <StorefrontBreadcrumb

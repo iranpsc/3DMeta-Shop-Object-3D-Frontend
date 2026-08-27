@@ -6,8 +6,10 @@ import { ProductCard } from "@/components/ui/product-card";
 import { LegalTopBar } from "@/components/layout/LegalTopBar";
 import { StorefrontBreadcrumb } from "@/components/layout/StorefrontBreadcrumb";
 import { TopLevelCategorySlider } from "@/components/home/TopLevelCategorySlider";
+import { JsonLd } from "@/components/seo/JsonLd";
 import { pageMetadata } from "@/lib/page-metadata";
 import { getSiteUrl } from "@/lib/site";
+import { buildCategoryPageSchema } from "@/lib/seo-schemas";
 import {
   fetchCategory,
   fetchTopLevelCategories,
@@ -30,7 +32,7 @@ export async function generateMetadata({
     return pageMetadata({
       title: category.name,
       description,
-      keywords: category.name,
+      keywords: [category.name, "مدل سه بعدی", "فروشگاه مدل سه بعدی"].join(", "),
       ogTitle: category.name,
       ogDescription: description,
       ogImage:
@@ -69,17 +71,24 @@ export default async function CategoryShowPage({ params }: { params: Params }) {
 
   const crumbs = [
     { label: "خانه", href: "/" },
-    ...slug.map((segment, index) => ({
-      label: index === slug.length - 1 ? category.name : segment,
-      href:
-        index === slug.length - 1
+    ...slug.map((segment, index) => {
+      const isLast = index === slug.length - 1;
+      const isParent =
+        !isLast && index === slug.length - 2 && category.parent?.name;
+      return {
+        label: isLast ? category.name : isParent ? category.parent!.name : segment,
+        href: isLast
           ? undefined
           : `/categories/${slug.slice(0, index + 1).join("/")}`,
-    })),
+      };
+    }),
   ];
 
   return (
     <main>
+      <JsonLd
+        data={await buildCategoryPageSchema(category, crumbs, products)}
+      />
       <LegalTopBar />
       <section className="mx-auto mt-24 max-w-[1500px] p-4 lg:mt-4 lg:p-9 lg:pt-0">
         <StorefrontBreadcrumb

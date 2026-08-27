@@ -56,8 +56,12 @@ export type ProductCard = {
 };
 
 export type ProductDetail = ProductCard & {
+  /** Legacy/Livewire alias sometimes used for meta description. */
+  description?: string | null;
   short_description?: string | null;
   long_description?: string | null;
+  meta_description?: string | null;
+  meta_keywords?: string | null;
   stock_status?: boolean;
   quantity?: number;
   customer_can_add_review?: boolean;
@@ -250,8 +254,6 @@ export type AdminDashboardStats = {
 
 export type AdminProduct = ProductDetail & {
   published?: boolean;
-  meta_description?: string;
-  meta_keywords?: string;
   delivery_time?: number | string | null;
   created_at?: string | null;
   category_id?: number;

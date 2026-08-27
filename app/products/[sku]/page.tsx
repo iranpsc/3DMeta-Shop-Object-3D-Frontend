@@ -21,20 +21,29 @@ export async function generateMetadata({
   try {
     const { sku } = await params;
     const product = await fetchProduct(sku);
+    // Livewire: @section('description', $product->description) + admin meta_* fields.
     const description =
-      product.short_description ?? product.long_description ?? undefined;
+      product.meta_description ??
+      product.description ??
+      product.short_description ??
+      product.long_description ??
+      undefined;
+    const keywords =
+      product.meta_keywords?.trim() ||
+      [product.name, product.sku].filter(Boolean).join(", ");
     const image = product.images?.[0]?.url ?? product.image?.url ?? null;
     const siteUrl = await getSiteUrl();
 
     return pageMetadata({
       title: `${product.name} - ${product.sku} - فروشگاه آنلاین`,
       description,
-      keywords: product.name,
+      keywords,
       ogTitle: product.name,
       ogDescription: product.short_description ?? description,
       ogImage: image,
       path: product.url || `/products/${product.sku}`,
       siteUrl,
+      absoluteTitle: true,
     });
   } catch {
     return { title: "محصول" };

@@ -7,12 +7,22 @@ const SITE_URL = getSiteUrlSync();
 /** Default Open Graph image used when a page does not set its own. */
 export const DEFAULT_OG_IMAGE = "/home-page/images/Asset2.png";
 
-const DEFAULT_KEYWORDS =
+/** Mirrors Livewire home `@section('keywords')` plus common storefront terms. */
+export const DEFAULT_KEYWORDS =
   "مدل سه بعدی, فروشگاه مدل سه بعدی, انیمیشن سه بعدی, آیکون, طراحی سه بعدی, 3d, 3dmeta, 3drgb";
+
+const HOME_DESCRIPTION =
+  "مرکز عرضه جدیدترین مدل سه بعدی، آیکون، انیمیشن و فایل های طراحی با تعرفه ثابت";
+
+const HOME_OG_DESCRIPTION =
+  "مرکز عرضه جدیدترین مدل سه بعدی، آیکون، انیمیشن و فایل های طراحی";
 
 export const rootMetadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: "سه بعدی متا",
+  title: {
+    default: "سه بعدی متا",
+    template: "%s | سه بعدی متا",
+  },
   description:
     "سامانه سه بعدی متا با تعرفه ای ثابت مرکز عرضه جدید ترین مدل سه بعدی ، آیکون ، انیمیشن و دیگر فایل های طراحی میباشد .",
   keywords: DEFAULT_KEYWORDS,
@@ -20,21 +30,22 @@ export const rootMetadata: Metadata = {
   icons: {
     icon: "/home-page/images/3ddmetaa143.png",
   },
+  other: {
+    language: "fa",
+  },
   openGraph: {
     type: "website",
     locale: "fa_IR",
     siteName: "سه بعدی متا",
     title: "سه بعدی متا",
-    description:
-      "مرکز عرضه جدیدترین مدل سه بعدی، آیکون، انیمیشن و فایل های طراحی",
+    description: HOME_OG_DESCRIPTION,
     images: [DEFAULT_OG_IMAGE],
     url: SITE_URL,
   },
   twitter: {
     card: "summary_large_image",
     title: "سه بعدی متا",
-    description:
-      "مرکز عرضه جدیدترین مدل سه بعدی، آیکون، انیمیشن و فایل های طراحی",
+    description: HOME_OG_DESCRIPTION,
     images: [DEFAULT_OG_IMAGE],
   },
 };
@@ -51,6 +62,9 @@ type PageMetaInput = {
   path?: string;
   /** Override origin (from getSiteUrl()) so canonicals match the app host. */
   siteUrl?: string;
+  /** Absolute titles (home/product) skip the root `%s | سه بعدی متا` template. */
+  absoluteTitle?: boolean;
+  robots?: Metadata["robots"];
 };
 
 /** Build Next.js Metadata mirroring Livewire @section title/description/og fields. */
@@ -64,6 +78,8 @@ export function pageMetadata({
   ogType = "website",
   path,
   siteUrl,
+  absoluteTitle = false,
+  robots,
 }: PageMetaInput): Metadata {
   const image = ogImage || DEFAULT_OG_IMAGE;
   const resolvedOgTitle = ogTitle ?? title;
@@ -73,9 +89,10 @@ export function pageMetadata({
   const url = path ? absoluteUrl(path, base) : undefined;
 
   return {
-    title,
+    title: absoluteTitle ? { absolute: title } : title,
     description: cleanDescription,
     keywords,
+    robots,
     alternates: {
       canonical: url,
     },
@@ -97,17 +114,24 @@ export function pageMetadata({
   };
 }
 
+/** Titles for auth/admin/cart flows — Livewire only set `<title>` via `x-page`; keep them out of the index. */
+export function privatePageMetadata(title: string): Metadata {
+  return {
+    title: { absolute: title },
+    robots: { index: false, follow: false },
+  };
+}
+
 export const homeMetadata = pageMetadata({
   title: "سه بعدی متا - فروشگاه مدل های سه بعدی",
-  description:
-    "مرکز عرضه جدیدترین مدل سه بعدی، آیکون، انیمیشن و فایل های طراحی با تعرفه ثابت",
+  description: HOME_DESCRIPTION,
   keywords:
     "مدل سه بعدی, فروشگاه مدل سه بعدی, انیمیشن سه بعدی, آیکون, طراحی سه بعدی",
   ogTitle: "سه بعدی متا",
-  ogDescription:
-    "مرکز عرضه جدیدترین مدل سه بعدی، آیکون، انیمیشن و فایل های طراحی",
+  ogDescription: HOME_OG_DESCRIPTION,
   ogImage: "/home-page/images/Asset2.png",
   path: "/",
+  absoluteTitle: true,
 });
 
 export const avatarsMetadata = pageMetadata({
@@ -120,12 +144,14 @@ export const avatarsMetadata = pageMetadata({
     "با وب‌سایت ما به راحتی و به صورت رایگان آواتارهای جذاب و حرفه‌ای طراحی کنید.",
   ogImage: "/home-page/images/avatar.s.png",
   path: "/avatars",
+  absoluteTitle: true,
 });
 
 export const aboutUsMetadata = pageMetadata({
   title: "درباره ما",
   description:
     "سه بعدی متا فروشگاه پیشرو در زمینه چاپ سه بعدی است که خدمات حرفه‌ای و محصولات با کیفیت بالا ارائه می‌دهد.",
+  keywords: DEFAULT_KEYWORDS,
   ogTitle: "درباره ما - سه بعدی متا فروشگاه",
   ogDescription:
     "سه بعدی متا فروشگاه پیشرو در زمینه چاپ سه بعدی است که خدمات حرفه‌ای و محصولات با کیفیت بالا ارائه می‌دهد.",
@@ -136,19 +162,20 @@ export const aboutUsMetadata = pageMetadata({
 export const contactUsMetadata = pageMetadata({
   title: "تماس با ما",
   description: "پیام شما میتواند شروع یک مکالمه سازنده باشد.",
+  keywords: DEFAULT_KEYWORDS,
   ogTitle: "تماس با ما - سه بعدی متا فروشگاه",
   ogDescription: "پیام شما میتواند شروع یک مکالمه سازنده باشد.",
   ogImage: "/home-page/images/3d.png",
   path: "/contact-us",
 });
 
+/** Livewire `store.blade.php` left sections empty; breadcrumb label is «فروشگاه». */
 export const storeMetadata = pageMetadata({
-  title: "محصولات",
-  description:
-    "مرکز عرضه جدیدترین مدل سه بعدی، آیکون، انیمیشن و فایل های طراحی با تعرفه ثابت",
-  ogTitle: "محصولات",
-  ogDescription:
-    "مرکز عرضه جدیدترین مدل سه بعدی، آیکون، انیمیشن و فایل های طراحی",
+  title: "فروشگاه",
+  description: HOME_DESCRIPTION,
+  keywords: DEFAULT_KEYWORDS,
+  ogTitle: "فروشگاه",
+  ogDescription: HOME_OG_DESCRIPTION,
   path: "/products",
 });
 
@@ -156,6 +183,7 @@ export const categoriesIndexMetadata = pageMetadata({
   title: "دسته بندی محصولات",
   description:
     "مرور دسته بندی محصولات سه بعدی، آیکون، انیمیشن و فایل های طراحی",
+  keywords: DEFAULT_KEYWORDS,
   ogTitle: "دسته بندی محصولات",
   path: "/categories",
 });
