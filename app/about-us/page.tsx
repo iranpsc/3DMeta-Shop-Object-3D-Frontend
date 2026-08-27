@@ -1,57 +1,15 @@
 import type { Metadata } from "next";
 import { LegalTopBar } from "@/components/layout/LegalTopBar";
+import { JsonLd } from "@/components/seo/JsonLd";
+import { aboutUsMetadata } from "@/lib/page-metadata";
+import { buildAboutPageSchema } from "@/lib/seo-schemas";
 
-export const metadata: Metadata = {
-  title: "درباره ما",
-};
+export const metadata: Metadata = aboutUsMetadata;
 
-const aboutPageSchema = {
-  "@context": "https://schema.org",
-  "@type": "AboutPage",
-  name: "About Us - سه بعدی متا فروشگاه",
-  url: "/about-us",
-  mainEntity: {
-    "@type": "Organization",
-    name: "سه بعدی متا فروشگاه",
-    url: "/",
-    logo: "/home-page/images/3d.png",
-    sameAs: [
-      "https://www.youtube.com/channel/UCG9jK8hoh9X5YoTs6Z1zlIQ",
-      "https://discord.gg/xqBe3h9hnN",
-      "https://www.instagram.com/modelify3d_com/",
-      "https://pin.it/7C5mYf6Q6",
-    ],
-    contactPoint: {
-      "@type": "ContactPoint",
-      telephone: "+989127855049",
-      contactType: "Customer Service",
-      areaServed: "IR",
-      availableLanguage: "Persian",
-    },
-    description:
-      "سه بعدی متا فروشگاه پیشرو در زمینه چاپ سه بعدی است که خدمات حرفه‌ای و محصولات با کیفیت بالا ارائه می‌دهد.",
-    parentOrganization: {
-      "@type": "Organization",
-      name: "هولدینگ زنجیره تامین بهشت",
-    },
-    foundingDate: "2020",
-    address: {
-      "@type": "PostalAddress",
-      addressCountry: "Iran",
-      addressLocality: "Qazvin",
-      addressRegion: "Qazvin Province",
-      streetAddress: "Mirdamad, 824H+JG2",
-    },
-  },
-};
-
-export default function AboutUsPage() {
+export default async function AboutUsPage() {
   return (
     <div>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(aboutPageSchema) }}
-      />
+      <JsonLd data={await buildAboutPageSchema()} />
       <main>
         <LegalTopBar />
         <section className="mx-auto mt-24 max-w-[1500px] p-4 lg:mt-14 lg:p-9">

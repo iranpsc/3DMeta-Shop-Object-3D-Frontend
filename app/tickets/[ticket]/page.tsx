@@ -1,10 +1,9 @@
 import type { Metadata } from "next";
+import { privatePageMetadata } from "@/lib/page-metadata";
 import { RequireAuth } from "@/components/auth/RequireAuth";
 import ShowTicketPageClient from "./ShowTicketPageClient";
 
-export const metadata: Metadata = {
-  title: "پشتیبانی | جزئیات پیام",
-};
+export const metadata: Metadata = privatePageMetadata("جزئیات تیکت");
 
 type Props = {
   params: Promise<{ ticket: string }>;

@@ -1,63 +1,16 @@
 import type { Metadata } from "next";
 import { ContactForm } from "@/components/contact/ContactForm";
 import { LegalTopBar } from "@/components/layout/LegalTopBar";
+import { JsonLd } from "@/components/seo/JsonLd";
+import { contactUsMetadata } from "@/lib/page-metadata";
+import { buildContactPageSchema } from "@/lib/seo-schemas";
 
-export const metadata: Metadata = {
-  title: "تماس با ما",
-};
+export const metadata: Metadata = contactUsMetadata;
 
-const contactPageSchema = {
-  "@context": "https://schema.org",
-  "@type": "ContactPage",
-  name: "Contact Us - سه بعدی متا فروشگاه",
-  url: "/contact-us",
-  mainEntity: {
-    "@type": "Organization",
-    name: "سه بعدی متا فروشگاه",
-    url: "/",
-    logo: "/home-page/images/3d.png",
-    contactPoint: [
-      {
-        "@type": "ContactPoint",
-        telephone: "+989127855049",
-        contactType: "Customer Service",
-        areaServed: "IR",
-        availableLanguage: ["Persian", "English"],
-        email: "info@example.com",
-      },
-      {
-        "@type": "ContactPoint",
-        telephone: "+989127855049",
-        contactType: "Sales",
-        areaServed: "IR",
-        availableLanguage: "Persian",
-        email: "hq@irpsc.com",
-      },
-    ],
-    address: {
-      "@type": "PostalAddress",
-      streetAddress: "Mirdamad, 824H+JG2",
-      addressLocality: "Qazvin",
-      addressRegion: "Qazvin Province",
-      postalCode: "123456789",
-      addressCountry: "Iran",
-    },
-    sameAs: [
-      "https://www.youtube.com/channel/UCG9jK8hoh9X5YoTs6Z1zlIQ",
-      "https://discord.gg/xqBe3h9hnN",
-      "https://www.instagram.com/modelify3d_com/",
-      "https://pin.it/7C5mYf6Q6",
-    ],
-  },
-};
-
-export default function ContactUsPage() {
+export default async function ContactUsPage() {
   return (
     <div>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(contactPageSchema) }}
-      />
+      <JsonLd data={await buildContactPageSchema()} />
       <main>
         <LegalTopBar />
         <section className="mx-auto mt-24 max-w-[1500px] p-4 lg:mt-14 lg:p-9">

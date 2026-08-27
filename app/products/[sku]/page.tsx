@@ -4,7 +4,11 @@ import { notFound } from "next/navigation";
 import { ProductGalleryActions } from "@/components/product/ProductGalleryActions";
 import { ProductDetailTabs } from "@/components/product/ProductDetailTabs";
 import { SimilarProducts } from "@/components/product/SimilarProducts";
+import { JsonLd } from "@/components/seo/JsonLd";
+import { pageMetadata } from "@/lib/page-metadata";
 import { ServerApiError } from "@/lib/server-api";
+import { buildProductSchema } from "@/lib/seo-schemas";
+import { absoluteUrlAsync, getSiteUrl } from "@/lib/site";
 import { fetchProduct, fetchProductReviews } from "@/lib/storefront-server-api";
 
 type Params = Promise<{ sku: string }>;
@@ -17,16 +21,30 @@ export async function generateMetadata({
   try {
     const { sku } = await params;
     const product = await fetchProduct(sku);
-    return {
+    // Livewire: @section('description', $product->description) + admin meta_* fields.
+    const description =
+      product.meta_description ??
+      product.description ??
+      product.short_description ??
+      product.long_description ??
+      undefined;
+    const keywords =
+      product.meta_keywords?.trim() ||
+      [product.name, product.sku].filter(Boolean).join(", ");
+    const image = product.images?.[0]?.url ?? product.image?.url ?? null;
+    const siteUrl = await getSiteUrl();
+
+    return pageMetadata({
       title: `${product.name} - ${product.sku} - فروشگاه آنلاین`,
-      description: product.short_description ?? undefined,
-      openGraph: {
-        title: product.name,
-        description: product.short_description ?? undefined,
-        images: product.images?.[0]?.url ? [product.images[0].url] : undefined,
-        type: "website",
-      },
-    };
+      description,
+      keywords,
+      ogTitle: product.name,
+      ogDescription: product.short_description ?? description,
+      ogImage: image,
+      path: product.url || `/products/${product.sku}`,
+      siteUrl,
+      absoluteTitle: true,
+    });
   } catch {
     return { title: "محصول" };
   }
@@ -49,8 +67,11 @@ export default async function ProductDetailsPage({ params }: { params: Params })
     throw error;
   }
 
+  const pageUrl = await absoluteUrlAsync(product.url || `/products/${product.sku}`);
+
   return (
     <main>
+      <JsonLd data={await buildProductSchema(product, pageUrl)} />
       <section className="mx-auto mt-20 max-w-[1500px] p-4 lg:mt-0 lg:p-9">
         <ProductGalleryActions product={product} />
         {product.tags && product.tags.length > 0 ? (

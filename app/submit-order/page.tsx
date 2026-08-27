@@ -1,10 +1,9 @@
 import type { Metadata } from "next";
+import { privatePageMetadata } from "@/lib/page-metadata";
 import { LegalTopBar } from "@/components/layout/LegalTopBar";
 import { SubmitOrderForm } from "@/components/submit-order/SubmitOrderForm";
 
-export const metadata: Metadata = {
-  title: "ثبت سفارش",
-};
+export const metadata: Metadata = privatePageMetadata("ثبت سفارش");
 
 export default function SubmitOrderPage() {
   return (

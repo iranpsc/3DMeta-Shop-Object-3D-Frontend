@@ -1,15 +1,19 @@
 import type { Metadata } from "next";
 import { RequireAuth } from "@/components/auth/RequireAuth";
+import { JsonLd } from "@/components/seo/JsonLd";
+import { avatarsMetadata } from "@/lib/page-metadata";
+import { buildAvatarsPageSchema } from "@/lib/seo-schemas";
 import AvatarsPageClient from "./AvatarsPageClient";
 
-export const metadata: Metadata = {
-  title: "بارگذاری آواتار",
-};
+export const metadata: Metadata = avatarsMetadata;
 
-export default function AvatarsPage() {
+export default async function AvatarsPage() {
   return (
-    <RequireAuth>
-      <AvatarsPageClient />
-    </RequireAuth>
+    <>
+      <JsonLd data={await buildAvatarsPageSchema()} />
+      <RequireAuth>
+        <AvatarsPageClient />
+      </RequireAuth>
+    </>
   );
 }

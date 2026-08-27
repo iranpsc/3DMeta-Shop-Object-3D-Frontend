@@ -1,10 +1,9 @@
 import type { Metadata } from "next";
+import { privatePageMetadata } from "@/lib/page-metadata";
 import { RequireAuth } from "@/components/auth/RequireAuth";
 import OrderDetailsPageClient from "./OrderDetailsPageClient";
 
-export const metadata: Metadata = {
-  title: "جزئیات سفارش",
-};
+export const metadata: Metadata = privatePageMetadata("جزئیات سفارش");
 
 type Props = {
   params: Promise<{ order: string }>;

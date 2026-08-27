@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { TopLevelCategorySlider } from "@/components/home/TopLevelCategorySlider";
 import { LegalTopBar } from "@/components/layout/LegalTopBar";
 import { StorefrontBreadcrumb } from "@/components/layout/StorefrontBreadcrumb";
+import { JsonLd } from "@/components/seo/JsonLd";
 import { StoreProductsSection } from "@/components/store/StoreProductsSection";
 import {
   buildApiParams,
@@ -12,11 +13,11 @@ import {
   fetchTopLevelCategories,
 } from "@/lib/storefront-server-api";
 import { serverApiFetch } from "@/lib/server-api";
+import { storeMetadata } from "@/lib/page-metadata";
+import { buildStorePageSchema } from "@/lib/seo-schemas";
 import type { PaginationMeta, ProductCard as ProductType } from "@/lib/types";
 
-export const metadata: Metadata = {
-  title: "محصولات",
-};
+export const metadata: Metadata = storeMetadata;
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
@@ -74,6 +75,7 @@ export default async function ProductsPage({
 
   return (
     <main className="overflow-x-hidden">
+      <JsonLd data={await buildStorePageSchema(products)} />
       <LegalTopBar />
       <section className="mx-auto mt-24 max-w-[1500px] overflow-x-hidden p-4 lg:mt-4 lg:p-9 lg:pt-0">
         <StorefrontBreadcrumb

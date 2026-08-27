@@ -7,24 +7,16 @@ import { PopularCategories } from "@/components/home/PopularCategories";
 import { TabSwitcher } from "@/components/home/TabSwitcher";
 import { TopLevelCategorySlider } from "@/components/home/TopLevelCategorySlider";
 import { LegalTopBar } from "@/components/layout/LegalTopBar";
+import { JsonLd } from "@/components/seo/JsonLd";
+import { homeMetadata } from "@/lib/page-metadata";
 import {
   fetchHomeProducts,
   fetchPopularCategories,
   fetchTopLevelCategories,
 } from "@/lib/storefront-server-api";
+import { buildHomeWebSiteSchema } from "@/lib/seo-schemas";
 
-export const metadata: Metadata = {
-  title: "سه بعدی متا - فروشگاه مدل های سه بعدی",
-  description:
-    "مرکز عرضه جدیدترین مدل سه بعدی، آیکون، انیمیشن و فایل های طراحی با تعرفه ثابت",
-  keywords: "مدل سه بعدی, فروشگاه مدل سه بعدی, انیمیشن سه بعدی, آیکون, طراحی سه بعدی",
-  openGraph: {
-    title: "سه بعدی متا",
-    description:
-      "مرکز عرضه جدیدترین مدل سه بعدی، آیکون، انیمیشن و فایل های طراحی",
-    images: ["/home-page/images/Asset2.png"],
-  },
-};
+export const metadata: Metadata = homeMetadata;
 
 export default async function HomePage() {
   let products: Awaited<ReturnType<typeof fetchHomeProducts>> = [];
@@ -43,6 +35,7 @@ export default async function HomePage() {
 
   return (
     <div>
+      <JsonLd data={await buildHomeWebSiteSchema()} />
       <main>
         <LegalTopBar />
 

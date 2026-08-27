@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
+import { privatePageMetadata } from "@/lib/page-metadata";
 import { VerifyPayment } from "@/components/checkout/VerifyPayment";
 
-export const metadata: Metadata = {
-  title: "نتیجه پرداخت",
-};
+export const metadata: Metadata = privatePageMetadata("نتیجه پرداخت");
 
 type Props = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;

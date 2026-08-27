@@ -6,6 +6,10 @@ import { ProductCard } from "@/components/ui/product-card";
 import { LegalTopBar } from "@/components/layout/LegalTopBar";
 import { StorefrontBreadcrumb } from "@/components/layout/StorefrontBreadcrumb";
 import { TopLevelCategorySlider } from "@/components/home/TopLevelCategorySlider";
+import { JsonLd } from "@/components/seo/JsonLd";
+import { pageMetadata } from "@/lib/page-metadata";
+import { getSiteUrl } from "@/lib/site";
+import { buildCategoryPageSchema } from "@/lib/seo-schemas";
 import {
   fetchCategory,
   fetchTopLevelCategories,
@@ -21,11 +25,21 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   try {
     const { slug } = await params;
-    const category = await fetchCategory(slug.join("/"));
-    return {
+    const slugPath = slug.join("/");
+    const category = await fetchCategory(slugPath);
+    const description = category.description ?? undefined;
+
+    return pageMetadata({
       title: category.name,
-      description: category.description ?? undefined,
-    };
+      description,
+      keywords: [category.name, "مدل سه بعدی", "فروشگاه مدل سه بعدی"].join(", "),
+      ogTitle: category.name,
+      ogDescription: description,
+      ogImage:
+        category.image?.url ?? "/home-page/images/3d-Strawberry-3dmodel.jpg",
+      path: `/categories/${slugPath}`,
+      siteUrl: await getSiteUrl(),
+    });
   } catch {
     return { title: "دسته بندی" };
   }
@@ -57,17 +71,24 @@ export default async function CategoryShowPage({ params }: { params: Params }) {
 
   const crumbs = [
     { label: "خانه", href: "/" },
-    ...slug.map((segment, index) => ({
-      label: index === slug.length - 1 ? category.name : segment,
-      href:
-        index === slug.length - 1
+    ...slug.map((segment, index) => {
+      const isLast = index === slug.length - 1;
+      const isParent =
+        !isLast && index === slug.length - 2 && category.parent?.name;
+      return {
+        label: isLast ? category.name : isParent ? category.parent!.name : segment,
+        href: isLast
           ? undefined
           : `/categories/${slug.slice(0, index + 1).join("/")}`,
-    })),
+      };
+    }),
   ];
 
   return (
     <main>
+      <JsonLd
+        data={await buildCategoryPageSchema(category, crumbs, products)}
+      />
       <LegalTopBar />
       <section className="mx-auto mt-24 max-w-[1500px] p-4 lg:mt-4 lg:p-9 lg:pt-0">
         <StorefrontBreadcrumb
