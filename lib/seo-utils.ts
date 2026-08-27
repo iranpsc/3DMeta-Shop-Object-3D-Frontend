@@ -7,7 +7,19 @@ export const DEFAULT_PRODUCT_IMAGE = "/home-page/images/Asset2.png";
 /** Strip HTML tags from a string. Helpful for SEO descriptions. */
 export function stripHtml(html?: string | null): string | undefined {
   if (!html) return undefined;
-  return html.replace(/<[^>]*>?/gm, "").trim() || undefined;
+  let text = "";
+  let inTag = false;
+  for (const char of html) {
+    if (char === "<") {
+      inTag = true;
+    } else if (char === ">") {
+      inTag = false;
+    } else if (!inTag) {
+      text += char;
+    }
+  }
+  const trimmed = text.trim();
+  return trimmed || undefined;
 }
 
 /** Remove null/undefined and empty objects/arrays so Google validators don't see invalid fields. */
