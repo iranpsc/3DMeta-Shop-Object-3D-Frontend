@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { withSentryConfig } from "@sentry/nextjs";
 
 const nextConfig: NextConfig = {
   // Required for the production Docker image (copies only the runtime server).
@@ -25,4 +26,16 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+const sentryOrg = process.env.SENTRY_ORG;
+const sentryProject = process.env.SENTRY_PROJECT;
+
+export default withSentryConfig(nextConfig, {
+  org: sentryOrg,
+  project: sentryProject,
+  authToken: process.env.SENTRY_AUTH_TOKEN,
+  silent: !process.env.CI,
+  widenClientFileUpload: true,
+  sourcemaps: {
+    disable: !sentryOrg || !sentryProject || !process.env.SENTRY_AUTH_TOKEN,
+  },
+});
