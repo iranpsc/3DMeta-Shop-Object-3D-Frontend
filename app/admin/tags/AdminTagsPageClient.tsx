@@ -8,6 +8,7 @@ import { confirmDialog } from "@/components/ui/confirm-dialog";
 import { EmptyPage } from "@/components/ui/empty-page";
 import { Modal } from "@/components/ui/modal";
 import { PageWrapper } from "@/components/ui/page-wrapper";
+import { TableSkeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { showErrorToast, showSuccessToast } from "@/components/ui/toast";
 import { createAdminTag, deleteAdminTag, fetchAdminTags } from "@/lib/admin-api";
@@ -67,7 +68,9 @@ export default function AdminTagsPageClient() {
 
   return (
     <PageWrapper title="برچسب ها" actionBtn actionBtnText="ایجاد برچسب جدید" onActionClick={() => setModalOpen(true)}>
-      {rows.length > 0 ? (
+      {!tags ? (
+        <TableSkeleton columns={4} headers={["ردیف", "نام", "نامک", "عملیات"]} />
+      ) : rows.length > 0 ? (
         <>
           <Table>
             <TableHeader>
@@ -85,14 +88,16 @@ export default function AdminTagsPageClient() {
                   <TableCell>{tag.name}</TableCell>
                   <TableCell>{tag.slug}</TableCell>
                   <TableCell>
-                    <Button
-                      variant="danger"
-                      size="sm"
-                      disabled={pending}
-                      onClick={() => handleDelete(tag.id)}
-                    >
-                      حذف
-                    </Button>
+                    {tag.can_delete ? (
+                      <Button
+                        variant="danger"
+                        size="sm"
+                        disabled={pending}
+                        onClick={() => handleDelete(tag.id)}
+                      >
+                        حذف
+                      </Button>
+                    ) : null}
                   </TableCell>
                 </TableRow>
               ))}

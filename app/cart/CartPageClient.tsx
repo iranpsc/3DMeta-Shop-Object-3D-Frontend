@@ -7,6 +7,7 @@ import { CheckoutSteps } from "@/components/checkout/CheckoutSteps";
 import { confirmDialog } from "@/components/ui/confirm-dialog";
 import { EmptyPage } from "@/components/ui/empty-page";
 import { PageWrapper } from "@/components/ui/page-wrapper";
+import { CartSkeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { showErrorToast, showSuccessToast } from "@/components/ui/toast";
 import {
@@ -245,7 +246,7 @@ export default function CartPageClient() {
         ) : cart ? (
           <EmptyPage />
         ) : (
-          <p className="text-center">در حال بارگذاری...</p>
+          <CartSkeleton />
         )}
       </div>
 

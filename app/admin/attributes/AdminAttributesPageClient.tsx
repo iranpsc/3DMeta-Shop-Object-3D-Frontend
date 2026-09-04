@@ -9,6 +9,7 @@ import { confirmDialog } from "@/components/ui/confirm-dialog";
 import { EmptyPage } from "@/components/ui/empty-page";
 import { Modal } from "@/components/ui/modal";
 import { PageWrapper } from "@/components/ui/page-wrapper";
+import { TableSkeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { showErrorToast, showSuccessToast } from "@/components/ui/toast";
 import { createAdminAttribute, deleteAdminAttribute, fetchAdminAttributes } from "@/lib/admin-api";
@@ -68,7 +69,9 @@ export default function AdminAttributesPageClient() {
 
   return (
     <PageWrapper title="ویژگی ها" actionBtn actionBtnText="ایجاد ویژگی جدید" onActionClick={() => setModalOpen(true)}>
-      {rows.length > 0 ? (
+      {!attributes ? (
+        <TableSkeleton columns={5} headers={["ردیف", "نام", "نامک", "تاریخ ایجاد", "عملیات"]} />
+      ) : rows.length > 0 ? (
         <>
           <Table>
             <TableHeader>
@@ -88,14 +91,16 @@ export default function AdminAttributesPageClient() {
                   <TableCell>{attribute.slug}</TableCell>
                   <TableCell>{formatAdminDate(attribute.created_at)}</TableCell>
                   <TableCell>
-                    <Button
-                      variant="danger"
-                      size="sm"
-                      disabled={pending}
-                      onClick={() => handleDelete(attribute.id)}
-                    >
-                      حذف
-                    </Button>
+                    {attribute.can_delete ? (
+                      <Button
+                        variant="danger"
+                        size="sm"
+                        disabled={pending}
+                        onClick={() => handleDelete(attribute.id)}
+                      >
+                        حذف
+                      </Button>
+                    ) : null}
                   </TableCell>
                 </TableRow>
               ))}

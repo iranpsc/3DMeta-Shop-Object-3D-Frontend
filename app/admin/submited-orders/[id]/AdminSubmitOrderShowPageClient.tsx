@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { formatAdminDate } from "@/components/admin/admin-utils";
 import { PageWrapper } from "@/components/ui/page-wrapper";
+import { DetailListSkeleton } from "@/components/ui/skeleton";
 import { fetchAdminSubmitOrder } from "@/lib/admin-api";
 import type { AdminSubmitOrder } from "@/lib/types";
 
@@ -32,7 +33,7 @@ export default function AdminSubmitOrderShowPageClient({ orderId }: AdminSubmitO
   if (!order) {
     return (
       <PageWrapper title="جزئیات سفارش">
-        <p className="text-center">در حال بارگذاری...</p>
+        <DetailListSkeleton rows={7} />
       </PageWrapper>
     );
   }

@@ -6,6 +6,7 @@ import { useEffect, useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { CheckoutSteps } from "@/components/checkout/CheckoutSteps";
 import { PageWrapper } from "@/components/ui/page-wrapper";
+import { CartSkeleton } from "@/components/ui/skeleton";
 import { useToastMessage } from "@/lib/use-toast-message";
 import {
   Table,
@@ -207,7 +208,7 @@ export function CheckoutFlow() {
   if (!checkout && !error) {
     return (
       <PageWrapper title="تسویه حساب">
-        <p className="text-center">در حال بارگذاری...</p>
+        <CartSkeleton />
       </PageWrapper>
     );
   }

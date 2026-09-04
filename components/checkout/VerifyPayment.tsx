@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { CheckoutSteps } from "@/components/checkout/CheckoutSteps";
 import { PageWrapper } from "@/components/ui/page-wrapper";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useToastMessage } from "@/lib/use-toast-message";
 import { verifyCheckoutPayment } from "@/lib/checkout-api";
@@ -69,7 +70,11 @@ export function VerifyPayment({ params }: Props) {
               <div className="card checkout-shipping-form border-0 shadow-none">
                 <div className="card-body">
                   {loading ? (
-                    <p className="my-5 text-center">در حال بررسی پرداخت...</p>
+                    <div role="status" aria-busy="true" aria-live="polite" className="my-8 space-y-4">
+                      <span className="sr-only">در حال بررسی پرداخت...</span>
+                      <Skeleton className="mx-auto h-5 w-48" />
+                      <Skeleton className="mx-auto h-24 w-full max-w-lg rounded-xl" />
+                    </div>
                   ) : (
                     <>
                       {result?.success && result.reference_id ? (

@@ -154,8 +154,12 @@ export default async function CategoryShowPage({ params }: { params: Params }) {
                   </div>
                 ))
               : products.length > 0
-                ? products.map((product) => (
-                    <ProductCard key={product.id} product={product} />
+                ? products.map((product, index) => (
+                    <ProductCard
+                      key={product.id}
+                      product={product}
+                      imagePriority={index < 3}
+                    />
                   ))
                 : (
                     <div className="col-span-full">

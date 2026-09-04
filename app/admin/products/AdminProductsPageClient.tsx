@@ -9,6 +9,7 @@ import { Pagination } from "@/components/ui/pagination";
 import { confirmDialog } from "@/components/ui/confirm-dialog";
 import { EmptyPage } from "@/components/ui/empty-page";
 import { PageWrapper } from "@/components/ui/page-wrapper";
+import { TableSkeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { showErrorToast, showSuccessToast } from "@/components/ui/toast";
 import { deleteAdminProduct, fetchAdminProducts } from "@/lib/admin-api";
@@ -64,7 +65,22 @@ export default function AdminProductsPageClient() {
         wrapperClassName="mb-5"
       />
 
-      {rows.length > 0 ? (
+      {!products ? (
+        <TableSkeleton
+          columns={9}
+          headers={[
+            "ردیف",
+            "نام",
+            "نامک",
+            "قیمت",
+            "قیمت ویژه",
+            "دسته بندی",
+            "وضعیت",
+            "تاریخ ایجاد",
+            "عملیات",
+          ]}
+        />
+      ) : rows.length > 0 ? (
         <>
           <Table>
             <TableHeader>
@@ -113,15 +129,17 @@ export default function AdminProductsPageClient() {
                       >
                         جزییات
                       </Button>
-                      <Button
-                        variant="danger"
-                        size="sm"
-                        disabled={pending}
-                        onClick={() => handleDelete(product.id)}
-                        className="text-sm font-bold"
-                      >
-                        حذف
-                      </Button>
+                      {product.can_delete ? (
+                        <Button
+                          variant="danger"
+                          size="sm"
+                          disabled={pending}
+                          onClick={() => handleDelete(product.id)}
+                          className="text-sm font-bold"
+                        >
+                          حذف
+                        </Button>
+                      ) : null}
                     </div>
                   </TableCell>
                 </TableRow>

@@ -4,8 +4,8 @@ import Link from "next/link";
 import { FormEvent, useEffect, useRef, useState, useTransition } from "react";
 import { formControlClassName } from "@/components/form/form-control-classes";
 import { Button } from "@/components/ui/button";
-import { PageLoading } from "@/components/ui/page-loading";
 import { PageWrapper } from "@/components/ui/page-wrapper";
+import { TicketDetailSkeleton } from "@/components/ui/skeleton";
 import { useToastState } from "@/lib/use-toast-message";
 import { fetchTicket, respondToTicket } from "@/lib/user-api";
 import { getApiBaseUrl } from "@/lib/api-client";
@@ -92,7 +92,7 @@ export default function ShowTicketPageClient({ ticketId }: { ticketId: number })
   if (loading) {
     return (
       <PageWrapper title="جزئیات تیکت">
-        <PageLoading className="py-16 text-center text-gray-500 dark:text-gray-400" />
+        <TicketDetailSkeleton />
       </PageWrapper>
     );
   }

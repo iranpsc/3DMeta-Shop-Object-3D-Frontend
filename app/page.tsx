@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { AvatarViewer } from "@/components/home/AvatarViewer";
@@ -15,27 +16,62 @@ import {
   fetchTopLevelCategories,
 } from "@/lib/storefront-server-api";
 import { buildHomeWebSiteSchema } from "@/lib/seo-schemas";
+import {
+  CategoryStripSkeleton,
+  HomeTabProductsSkeleton,
+  PopularCategoriesSkeleton,
+} from "@/components/ui/skeleton";
 
 export const metadata: Metadata = homeMetadata;
 
-export default async function HomePage() {
-  let products: Awaited<ReturnType<typeof fetchHomeProducts>> = [];
-  let popularCategories: Awaited<ReturnType<typeof fetchPopularCategories>> = [];
-  let topLevelCategories: Awaited<ReturnType<typeof fetchTopLevelCategories>> = [];
+async function HomeJsonLd() {
+  return <JsonLd data={await buildHomeWebSiteSchema()} />;
+}
+
+async function HomeTopLevelCategories() {
+  let topLevelCategories: Awaited<ReturnType<typeof fetchTopLevelCategories>> =
+    [];
 
   try {
-    [products, popularCategories, topLevelCategories] = await Promise.all([
-      fetchHomeProducts("newest"),
-      fetchPopularCategories(12),
-      fetchTopLevelCategories(),
-    ]);
+    topLevelCategories = await fetchTopLevelCategories();
   } catch {
     // API may be offline during local UI/E2E shell checks
   }
 
+  return <TopLevelCategorySlider categories={topLevelCategories} />;
+}
+
+async function HomePopularCategories() {
+  let popularCategories: Awaited<ReturnType<typeof fetchPopularCategories>> =
+    [];
+
+  try {
+    popularCategories = await fetchPopularCategories(12);
+  } catch {
+    // API may be offline during local UI/E2E shell checks
+  }
+
+  return <PopularCategories categories={popularCategories} />;
+}
+
+async function HomeTabProducts() {
+  let products: Awaited<ReturnType<typeof fetchHomeProducts>> = [];
+
+  try {
+    products = await fetchHomeProducts("newest");
+  } catch {
+    // API may be offline during local UI/E2E shell checks
+  }
+
+  return <TabSwitcher initialProducts={products} initialSort="newest" />;
+}
+
+export default function HomePage() {
   return (
     <div>
-      <JsonLd data={await buildHomeWebSiteSchema()} />
+      <Suspense fallback={null}>
+        <HomeJsonLd />
+      </Suspense>
       <main>
         <LegalTopBar />
 
@@ -111,7 +147,9 @@ export default async function HomePage() {
               </p>
             </div>
             <div>
-              <TopLevelCategorySlider categories={topLevelCategories} />
+              <Suspense fallback={<CategoryStripSkeleton />}>
+                <HomeTopLevelCategories />
+              </Suspense>
             </div>
           </div>
 
@@ -172,7 +210,9 @@ export default async function HomePage() {
           </div>
         </section>
 
-        <PopularCategories categories={popularCategories} />
+        <Suspense fallback={<PopularCategoriesSkeleton />}>
+          <HomePopularCategories />
+        </Suspense>
 
         <section className="mx-auto mt-32 flex w-full max-w-[1500px] items-center justify-center px-5 lg:px-9 3xl:px-0">
           <div className="flex w-full flex-col items-center justify-center gap-5 gap-y-10 rounded-3xl bg-[#000ceec2] px-7 py-12 text-center xl:flex-row xl:py-16 dark:bg-gradient-to-tl dark:from-[#014AA0] dark:to-[#012F65]">
@@ -194,7 +234,9 @@ export default async function HomePage() {
           </div>
         </section>
 
-        <TabSwitcher initialProducts={products} initialSort="newest" />
+        <Suspense fallback={<HomeTabProductsSkeleton />}>
+          <HomeTabProducts />
+        </Suspense>
       </main>
     </div>
   );

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { PageWrapper } from "@/components/ui/page-wrapper";
+import { DashboardSkeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { fetchDashboard } from "@/lib/user-api";
 import { formatPrice } from "@/lib/formatters";
@@ -29,7 +30,7 @@ export default function DashboardPageClient() {
   if (!data) {
     return (
       <PageWrapper title="داشبورد">
-        <p className="text-center">در حال بارگذاری...</p>
+        <DashboardSkeleton />
       </PageWrapper>
     );
   }

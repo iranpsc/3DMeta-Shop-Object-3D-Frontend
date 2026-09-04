@@ -92,8 +92,9 @@ export function TabSwitcher({
       </div>
       <div className="relative">
         <div
-          className={`overflow-x-hidden ${isPending ? "opacity-60" : ""}`}
+          className={`overflow-x-hidden ${isPending ? "pointer-events-none opacity-60" : ""}`}
           dir="rtl"
+          aria-busy={isPending}
         >
           {products.length === 0 ? (
             <EmptyPage message="محصولی یافت نشد" />
@@ -103,9 +104,9 @@ export function TabSwitcher({
               slideClassName="!flex"
               resetKey={`${active}-${products.map((p) => p.id).join("-")}`}
             >
-              {products.map((product) => (
+              {products.map((product, index) => (
                 <div key={product.id} className="flex w-full">
-                  <ProductCard product={product} />
+                  <ProductCard product={product} imagePriority={index < 3} />
                 </div>
               ))}
             </HomeSlider>

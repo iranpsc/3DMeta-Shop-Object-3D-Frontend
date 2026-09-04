@@ -157,12 +157,12 @@ export function StoreFilters({
             </span>
           ) : (
             categories.map((cat) => (
-              <div key={cat.id} className="item">
-                <div className="inline-flex w-full items-center justify-between gap-x-3 px-2 py-1 text-start font-semibold text-[#848383] dark:text-gray-300">
+              <div key={cat.id} className="item cursor-pointer">
+                <div className="inline-flex w-full items-center justify-between gap-x-3 px-2 py-1 text-start font-semibold text-[#848383] dark:text-gray-300 cursor-pointer">
                   <Button
                     variant="unstyled"
                     fullWidth
-                    className="text-right font-semibold text-[#848383] dark:text-gray-300"
+                    className="text-right font-semibold text-[#848383] dark:text-gray-300 cursor-pointer"
                     disabled={isPending}
                     onClick={() => {
                       onNavigate({
@@ -176,12 +176,13 @@ export function StoreFilters({
                   >
                     {cat.name}
                   </Button>
-                  <span className="text-right text-xs">{cat.products_count}</span>
+                  <span className="text-right text-xs cursor-pointer">{cat.products_count}</span>
                 </div>
               </div>
             ))
           )}
         </div>
+   
       </div>
 
       <div className="w-full space-y-5 bg-white p-5 text-[#848383] dark:bg-[#1A1A18] dark:text-[#F8F8F8] lg:rounded-[10px]">
@@ -204,7 +205,7 @@ export function StoreFilters({
             <input
               type="range"
               min={PRICE_MIN_LIMIT}
-              max={9000000}
+              max={PRICE_MAX_LIMIT}
               step={1}
               value={maxPrice}
               disabled={isPending}

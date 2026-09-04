@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { PageWrapper } from "@/components/ui/page-wrapper";
+import { TableSkeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { fetchOrder } from "@/lib/user-api";
 import type { OrderDetail } from "@/lib/types";
@@ -36,7 +37,11 @@ export default function OrderDetailsPageClient({ orderId }: { orderId: string })
   if (!order) {
     return (
       <PageWrapper title="جزئیات سفارش">
-        <p className="text-center">در حال بارگذاری...</p>
+        <TableSkeleton
+          columns={3}
+          rows={2}
+          headers={["شناسه سفارش", "مبلغ پرداختی", "وضعیت"]}
+        />
       </PageWrapper>
     );
   }

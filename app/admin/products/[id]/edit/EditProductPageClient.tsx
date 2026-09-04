@@ -5,6 +5,7 @@ import { useEffect, useState, useTransition } from "react";
 import { ProductForm } from "@/components/admin/ProductForm";
 import { Button } from "@/components/ui/button";
 import { PageWrapper } from "@/components/ui/page-wrapper";
+import { FormSkeleton } from "@/components/ui/skeleton";
 import { useToastMessage } from "@/lib/use-toast-message";
 import {
   fetchAdminProduct,
@@ -52,7 +53,7 @@ export default function EditProductPageClient({ productId }: EditProductPageClie
   return (
     <PageWrapper title="ویرایش محصول">
       {!formData || !product ? (
-        <p className="text-center">در حال بارگذاری...</p>
+        <FormSkeleton fields={8} columns={2} />
       ) : (
         <ProductForm
           formData={formData}

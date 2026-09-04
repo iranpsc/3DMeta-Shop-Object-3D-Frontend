@@ -5,6 +5,7 @@ import { formatAdminDate } from "@/components/admin/admin-utils";
 import { FormTextInput } from "@/components/form/text-input";
 import { Pagination } from "@/components/ui/pagination";
 import { PageWrapper } from "@/components/ui/page-wrapper";
+import { TableSkeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { showErrorToast } from "@/components/ui/toast";
 import { fetchAdminUsers } from "@/lib/admin-api";
@@ -45,7 +46,13 @@ export default function AdminUsersPageClient() {
         />
       </div>
 
-      <Table variant="bordered">
+      {!users ? (
+        <TableSkeleton
+          columns={6}
+          headers={["ردیف", "نام", "ایمیل", "شماره موبایل", "تاریخ عضویت", "تعداد خرید"]}
+        />
+      ) : (
+        <Table variant="bordered">
         <TableHeader>
           <TableRow header>
             <TableHead>ردیف</TableHead>
@@ -69,6 +76,7 @@ export default function AdminUsersPageClient() {
           ))}
         </TableBody>
       </Table>
+      )}
 
       {users ? (
         <Pagination currentPage={page} lastPage={users.meta.last_page} onPageChange={setPage} />

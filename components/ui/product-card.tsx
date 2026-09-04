@@ -1,12 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useTransition } from "react";
+import { useState, useTransition, type SyntheticEvent } from "react";
 import { addToCart } from "@/lib/cart-api";
 import { useCart } from "@/lib/cart-context";
 import type { ProductCard } from "@/lib/types";
 import { formatPrice as formatNumber } from "@/lib/formatters";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { showErrorToast, showSuccessToast } from "@/components/ui/toast";
 
 const DEFAULT_IMAGE = "/home-page/images/default.jpg";
@@ -20,14 +21,38 @@ function formatPrice(product: ProductCard): string {
 
 type ProductCardProps = {
   product: ProductCard;
+  imagePriority?: boolean;
 };
 
-export function ProductCard({ product }: ProductCardProps) {
+export function ProductCard({ product, imagePriority = false }: ProductCardProps) {
   const imageUrl = product.image?.url ?? DEFAULT_IMAGE;
   const category = product.category;
   const [inCart, setInCart] = useState(false);
+  const [loadedImageUrl, setLoadedImageUrl] = useState<string | null>(null);
   const [cartPending, startCartTransition] = useTransition();
   const { setCount } = useCart();
+  const imageLoaded = loadedImageUrl === imageUrl;
+
+  function handleImageLoad(event: SyntheticEvent<HTMLImageElement>) {
+    if (event.currentTarget.naturalWidth > 0) {
+      setLoadedImageUrl(imageUrl);
+    }
+  }
+
+  function handleImageError(event: SyntheticEvent<HTMLImageElement>) {
+    const img = event.currentTarget;
+    if (!img.src.includes("default.jpg")) {
+      img.src = DEFAULT_IMAGE;
+      return;
+    }
+    setLoadedImageUrl(imageUrl);
+  }
+
+  function handleImageRef(img: HTMLImageElement | null) {
+    if (img?.complete && img.naturalWidth > 0) {
+      setLoadedImageUrl(imageUrl);
+    }
+  }
 
   function handleAddToCart() {
     startCartTransition(async () => {
@@ -53,18 +78,27 @@ export function ProductCard({ product }: ProductCardProps) {
       <div className="flex w-full flex-col items-center justify-between gap-2 overflow-hidden rounded-xl bg-white text-center transition-all duration-500 dark:bg-[#1A1A18]">
         <Link
           href={product.url}
-          className="mt-4 overflow-hidden rounded-lg"
+          className="relative mt-4 block overflow-hidden rounded-lg"
           style={{ width: "90%" }}
         >
+          {!imageLoaded ? (
+            <Skeleton className="aspect-square w-full rounded-lg" />
+          ) : null}
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={imageUrl}
             alt={product.name}
-            loading="lazy"
-            className="w-full"
-            onError={(e) => {
-              e.currentTarget.src = DEFAULT_IMAGE;
-            }}
+            loading={imagePriority ? "eager" : "lazy"}
+            fetchPriority={imagePriority ? "high" : undefined}
+            decoding="async"
+            className={
+              imageLoaded
+                ? "relative w-full"
+                : "absolute inset-0 h-full w-full object-cover opacity-0"
+            }
+            onLoad={handleImageLoad}
+            onError={handleImageError}
+            ref={handleImageRef}
           />
         </Link>
         <div className="flex w-full flex-col items-center justify-center gap-3 p-3">

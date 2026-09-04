@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { EmptyPage } from "@/components/ui/empty-page";
 import { PageWrapper } from "@/components/ui/page-wrapper";
+import { TableSkeleton } from "@/components/ui/skeleton";
 import { Pagination } from "@/components/ui/pagination";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { showErrorToast } from "@/components/ui/toast";
@@ -131,7 +132,10 @@ export default function OrdersPageClient() {
               />
             </>
           ) : (
-            <p className="text-center">در حال بارگذاری...</p>
+            <TableSkeleton
+              columns={6}
+              headers={["ردیف", "شناسه سفارش", "نام محصول", "مبلغ پرداختی", "وضعیت", "عملیات"]}
+            />
           )}
         </div>
       </div>

@@ -7,6 +7,7 @@ import { FormTextarea } from "@/components/form/textarea";
 import { formControlClassName } from "@/components/form/form-control-classes";
 import { Button } from "@/components/ui/button";
 import { PageWrapper } from "@/components/ui/page-wrapper";
+import { FormSkeleton } from "@/components/ui/skeleton";
 import { showErrorToast, showSuccessToast } from "@/components/ui/toast";
 import { fetchTicket, updateTicket } from "@/lib/user-api";
 
@@ -15,6 +16,7 @@ export default function EditTicketPageClient({ ticketId }: { ticketId: number })
   const [title, setTitle] = useState("");
   const [message, setMessage] = useState("");
   const [priority, setPriority] = useState("medium");
+  const [loaded, setLoaded] = useState(false);
   const [pending, startTransition] = useTransition();
 
   useEffect(() => {
@@ -24,7 +26,8 @@ export default function EditTicketPageClient({ ticketId }: { ticketId: number })
         setMessage(ticket.message);
         setPriority(ticket.priority);
       })
-      .catch(() => showErrorToast("بارگذاری تیکت با خطا مواجه شد."));
+      .catch(() => showErrorToast("بارگذاری تیکت با خطا مواجه شد."))
+      .finally(() => setLoaded(true));
   }, [ticketId]);
 
   function handleSubmit(e: FormEvent<HTMLFormElement>) {
@@ -51,6 +54,9 @@ export default function EditTicketPageClient({ ticketId }: { ticketId: number })
 
   return (
     <PageWrapper title="ایجاد پیام">
+      {!loaded ? (
+        <FormSkeleton fields={4} />
+      ) : (
       <div className="row my-5 justify-content-center">
         <div className="col-sm-10 col-md-8 col-lg-6">
           <div className="card">
@@ -99,6 +105,7 @@ export default function EditTicketPageClient({ ticketId }: { ticketId: number })
           </div>
         </div>
       </div>
+      )}
     </PageWrapper>
   );
 }

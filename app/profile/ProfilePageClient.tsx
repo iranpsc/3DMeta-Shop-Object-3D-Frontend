@@ -4,8 +4,8 @@ import { FormEvent, useEffect, useState, useTransition } from "react";
 import { FormTextInput } from "@/components/form/text-input";
 import { formControlClassName } from "@/components/form/form-control-classes";
 import { Button } from "@/components/ui/button";
-import { PageLoading } from "@/components/ui/page-loading";
 import { PageWrapper } from "@/components/ui/page-wrapper";
+import { FormSkeleton } from "@/components/ui/skeleton";
 import { useToastState } from "@/lib/use-toast-message";
 import { fetchProfile, updateProfile } from "@/lib/user-api";
 import type { UserProfile } from "@/lib/types";
@@ -68,7 +68,7 @@ export default function ProfilePageClient() {
         {loadFailed ? (
           <p className="text-center text-gray-500 dark:text-gray-400">بارگذاری پروفایل با خطا مواجه شد.</p>
         ) : (
-          <PageLoading className="text-center" />
+          <FormSkeleton fields={4} columns={2} />
         )}
       </PageWrapper>
     );

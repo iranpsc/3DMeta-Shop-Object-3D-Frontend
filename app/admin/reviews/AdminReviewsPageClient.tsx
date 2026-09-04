@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Pagination } from "@/components/ui/pagination";
 import { confirmDialog } from "@/components/ui/confirm-dialog";
 import { PageWrapper } from "@/components/ui/page-wrapper";
+import { TableSkeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { showErrorToast, showSuccessToast } from "@/components/ui/toast";
 import { approveAdminReview, deleteAdminReview, fetchAdminReviews } from "@/lib/admin-api";
@@ -59,6 +60,13 @@ export default function AdminReviewsPageClient() {
 
   return (
     <PageWrapper title="دیدگاه های کاربران">
+      {!reviews ? (
+        <TableSkeleton
+          columns={8}
+          headers={["ردیف", "نام کاربر", "محصول", "متن", "امتیاز", "وضعیت", "پاسخ ها", "عملیات"]}
+        />
+      ) : (
+        <>
       <Table>
         <TableHeader>
           <TableRow header>
@@ -113,14 +121,16 @@ export default function AdminReviewsPageClient() {
                         تایید
                       </Button>
                     ) : null}
-                    <Button
-                      variant="danger"
-                      size="sm"
-                      disabled={pending}
-                      onClick={() => handleDelete(review.id)}
-                    >
-                      حذف
-                    </Button>
+                    {review.can_delete ? (
+                      <Button
+                        variant="danger"
+                        size="sm"
+                        disabled={pending}
+                        onClick={() => handleDelete(review.id)}
+                      >
+                        حذف
+                      </Button>
+                    ) : null}
                   </div>
                 </TableCell>
               </TableRow>
@@ -132,6 +142,8 @@ export default function AdminReviewsPageClient() {
       {reviews ? (
         <Pagination currentPage={page} lastPage={reviews.meta.last_page} onPageChange={setPage} />
       ) : null}
+        </>
+      )}
     </PageWrapper>
   );
 }

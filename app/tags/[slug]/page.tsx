@@ -103,8 +103,12 @@ export default async function TagPage({
                 <EmptyPage message="محصولی یافت نشد" />
               </div>
             ) : (
-              products.map((product) => (
-                <ProductCard key={product.id} product={product} />
+              products.map((product, index) => (
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  imagePriority={index < 3}
+                />
               ))
             )}
           </div>

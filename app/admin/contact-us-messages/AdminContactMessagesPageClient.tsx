@@ -7,6 +7,7 @@ import { Pagination } from "@/components/ui/pagination";
 import { EmptyPage } from "@/components/ui/empty-page";
 import { Modal } from "@/components/ui/modal";
 import { PageWrapper } from "@/components/ui/page-wrapper";
+import { TableSkeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { showErrorToast } from "@/components/ui/toast";
 import { fetchAdminContactMessages } from "@/lib/admin-api";
@@ -31,7 +32,12 @@ export default function AdminContactMessagesPageClient() {
 
   return (
     <PageWrapper title="پیام های دریافتی">
-      {rows.length > 0 ? (
+      {!messages ? (
+        <TableSkeleton
+          columns={6}
+          headers={["ردیف", "نام و نام خانوادگی", "ایمیل", "شماره تلفن", "تاریخ ایجاد", "عملیات"]}
+        />
+      ) : rows.length > 0 ? (
         <>
           <Table>
             <TableHeader>

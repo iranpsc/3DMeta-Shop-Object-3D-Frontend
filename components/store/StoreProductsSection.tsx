@@ -4,6 +4,7 @@ import { useCallback, useRef, useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { EmptyPage } from "@/components/ui/empty-page";
 import { ProductCard } from "@/components/ui/product-card";
+import { ProductGridSkeleton } from "@/components/ui/skeleton";
 import { clientFetchProducts } from "@/lib/storefront-client-api";
 import type {
   CategorySummary,
@@ -113,13 +114,22 @@ export function StoreProductsSection({
           onNavigate={applyFilters}
         />
 
-        <div className={isPending ? "opacity-60 transition-opacity" : ""}>
-          {products.length === 0 ? (
+        <div
+          aria-busy={isPending}
+          className={isPending && products.length > 0 ? "pointer-events-none opacity-60" : undefined}
+        >
+          {isPending && products.length === 0 ? (
+            <ProductGridSkeleton count={3} />
+          ) : products.length === 0 ? (
             <EmptyPage message="محصولی یافت نشد" />
           ) : (
             <div className="grid gap-5 transition duration-500 lg:grid-cols-2 xl:grid-cols-3">
-              {products.map((product) => (
-                <ProductCard key={product.id} product={product} />
+              {products.map((product, index) => (
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  imagePriority={index < 3}
+                />
               ))}
             </div>
           )}

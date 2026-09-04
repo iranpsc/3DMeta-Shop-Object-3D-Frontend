@@ -6,6 +6,7 @@ import { formatAdminDate } from "@/components/admin/admin-utils";
 import { Pagination } from "@/components/ui/pagination";
 import { EmptyPage } from "@/components/ui/empty-page";
 import { PageWrapper } from "@/components/ui/page-wrapper";
+import { TableSkeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { showErrorToast } from "@/components/ui/toast";
 import { fetchAdminSubmitOrders } from "@/lib/admin-api";
@@ -29,7 +30,9 @@ export default function AdminSubmitOrdersPageClient() {
 
   return (
     <PageWrapper title="سفارشات ثبت شده">
-      {rows.length > 0 ? (
+      {!orders ? (
+        <TableSkeleton columns={6} headers={["ردیف", "نام", "ایمیل", "موضوع", "تاریخ", "عملیات"]} />
+      ) : rows.length > 0 ? (
         <>
           <Table>
             <TableHeader>

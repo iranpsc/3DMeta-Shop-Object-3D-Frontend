@@ -7,6 +7,7 @@ import { FormTextarea } from "@/components/form/textarea";
 import { formControlClassName } from "@/components/form/form-control-classes";
 import { Button } from "@/components/ui/button";
 import { PageWrapper } from "@/components/ui/page-wrapper";
+import { FormSkeleton } from "@/components/ui/skeleton";
 import { useToastMessage } from "@/lib/use-toast-message";
 import {
   fetchAdminCategory,
@@ -57,7 +58,7 @@ export default function EditCategoryPageClient({ categoryId }: EditCategoryPageC
   if (!category) {
     return (
       <PageWrapper title="ویرایش دسته بندی">
-        <p className="text-center">در حال بارگذاری...</p>
+        <FormSkeleton fields={4} />
       </PageWrapper>
     );
   }

@@ -7,6 +7,7 @@ import { Pagination } from "@/components/ui/pagination";
 import { confirmDialog } from "@/components/ui/confirm-dialog";
 import { EmptyPage } from "@/components/ui/empty-page";
 import { PageWrapper } from "@/components/ui/page-wrapper";
+import { TableSkeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { showErrorToast, showSuccessToast } from "@/components/ui/toast";
 import { deleteAdminCategory, fetchAdminCategories } from "@/lib/admin-api";
@@ -53,7 +54,9 @@ export default function AdminCategoriesPageClient() {
       actionBtnLink="/admin/categories/create"
       actionBtnText="ایجاد دسته بندی"
     >
-      {rows.length > 0 ? (
+      {!categories ? (
+        <TableSkeleton columns={5} headers={["ردیف", "نام", "نامک", "والد", "عملیات"]} />
+      ) : rows.length > 0 ? (
         <>
           <Table>
             <TableHeader>
@@ -81,14 +84,16 @@ export default function AdminCategoriesPageClient() {
                       >
                         ویرایش
                       </Button>
-                      <Button
-                        variant="danger"
-                        size="sm"
-                        disabled={pending}
-                        onClick={() => handleDelete(category.id)}
-                      >
-                        حذف
-                      </Button>
+                      {category.can_delete ? (
+                        <Button
+                          variant="danger"
+                          size="sm"
+                          disabled={pending}
+                          onClick={() => handleDelete(category.id)}
+                        >
+                          حذف
+                        </Button>
+                      ) : null}
                     </div>
                   </TableCell>
                 </TableRow>

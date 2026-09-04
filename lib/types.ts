@@ -29,6 +29,7 @@ export type CategorySummary = {
     data: ProductCard[];
     meta: PaginationMeta;
   } | [];
+  can_delete?: boolean;
 };
 
 export type TagSummary = {
@@ -36,6 +37,7 @@ export type TagSummary = {
   name: string;
   slug: string;
   url: string;
+  can_delete?: boolean;
 };
 
 export type ProductCard = {
@@ -53,6 +55,7 @@ export type ProductCard = {
   reviews_count?: number;
   image?: ProductImage | null;
   category?: CategorySummary | null;
+  can_delete?: boolean;
 };
 
 export type ProductDetail = ProductCard & {
@@ -285,6 +288,7 @@ export type AdminReview = {
   product?: { id: number; name: string; sku: string } | null;
   replies_count?: number;
   replies?: AdminReviewReply[];
+  can_delete?: boolean;
 };
 
 export type AdminReviewReply = {
@@ -295,6 +299,7 @@ export type AdminReviewReply = {
   approved_by?: string | null;
   created_at?: string | null;
   user?: { id: number; name: string; avatar?: string | null } | null;
+  can_delete?: boolean;
 };
 
 export type AdminUser = {
@@ -335,4 +340,5 @@ export type AdminAttribute = {
   name: string;
   slug: string;
   created_at?: string | null;
+  can_delete?: boolean;
 };

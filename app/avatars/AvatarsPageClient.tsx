@@ -3,8 +3,8 @@
 import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 import { FormTextInput } from "@/components/form/text-input";
 import { Button } from "@/components/ui/button";
-import { PageLoading } from "@/components/ui/page-loading";
 import { PageWrapper } from "@/components/ui/page-wrapper";
+import { TableSkeleton } from "@/components/ui/skeleton";
 import { Pagination } from "@/components/ui/pagination";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { showErrorToast, showWarningToast } from "@/components/ui/toast";
@@ -257,7 +257,10 @@ export default function AvatarsPageClient() {
           ) : avatars ? (
             <p className="mt-4 text-center text-gray-500 dark:text-gray-400">آواتاری یافت نشد.</p>
           ) : (
-            <PageLoading className="text-center" />
+            <TableSkeleton
+              columns={6}
+              headers={["ردیف", "شناسه", "نام", "تصویر", "فایل", "تاریخ ایجاد"]}
+            />
           )}
         </div>
       </div>

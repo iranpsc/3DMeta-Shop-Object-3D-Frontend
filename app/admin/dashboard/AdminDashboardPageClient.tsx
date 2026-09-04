@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { formatPrice } from "@/components/admin/admin-utils";
 import { PageWrapper } from "@/components/ui/page-wrapper";
+import { AdminDashboardSkeleton } from "@/components/ui/skeleton";
 import { fetchAdminDashboard } from "@/lib/admin-api";
 import type { AdminDashboardStats } from "@/lib/types";
 
@@ -27,7 +28,7 @@ export default function AdminDashboardPageClient() {
   if (!stats) {
     return (
       <PageWrapper title="داشبورد مدیریت">
-        <p className="text-center">در حال بارگذاری...</p>
+        <AdminDashboardSkeleton />
       </PageWrapper>
     );
   }

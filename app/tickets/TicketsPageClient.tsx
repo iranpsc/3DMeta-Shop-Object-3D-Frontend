@@ -5,6 +5,8 @@ import { useCallback, useEffect, useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { EmptyPage } from "@/components/ui/empty-page";
 import { PageWrapper } from "@/components/ui/page-wrapper";
+import { TableSkeleton } from "@/components/ui/skeleton";
+import { confirmDialog } from "@/components/ui/confirm-dialog";
 import { Pagination } from "@/components/ui/pagination";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { showErrorToast } from "@/components/ui/toast";
@@ -32,9 +34,12 @@ export default function TicketsPageClient() {
   }, [loadTickets]);
 
   function handleDelete(ticketId: number) {
-    if (!window.confirm("آیا از حذف این پیام مطمئن هستید؟")) return;
-
     startTransition(async () => {
+      const confirmed = await confirmDialog({
+        message: "آیا از حذف این پیام مطمئن هستید؟",
+      });
+      if (!confirmed) return;
+
       try {
         await deleteTicket(ticketId);
         loadTickets();
@@ -123,7 +128,10 @@ export default function TicketsPageClient() {
       ) : tickets ? (
         <EmptyPage />
       ) : (
-        <p className="text-center">در حال بارگذاری...</p>
+        <TableSkeleton
+          columns={8}
+          headers={["ردیف", "فرستنده", "موضوع", "اولویت", "وضعیت", "تاریخ ارسال", "جزئیات", "عملیات"]}
+        />
       )}
     </PageWrapper>
   );

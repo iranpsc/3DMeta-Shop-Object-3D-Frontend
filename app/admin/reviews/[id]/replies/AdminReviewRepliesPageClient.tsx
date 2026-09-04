@@ -6,6 +6,7 @@ import { FormTextarea } from "@/components/form/textarea";
 import { Button } from "@/components/ui/button";
 import { confirmDialog } from "@/components/ui/confirm-dialog";
 import { PageWrapper } from "@/components/ui/page-wrapper";
+import { TableSkeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { showErrorToast, showSuccessToast } from "@/components/ui/toast";
 import {
@@ -83,12 +84,17 @@ export default function AdminReviewRepliesPageClient({ reviewId }: AdminReviewRe
 
   return (
     <PageWrapper title="پاسخ های دیدگاه">
-      {review ? (
-        <div className="mb-6 rounded-[10px] bg-[#EFEFEF] p-5 dark:bg-[#4A4E7C]">
-          <p className="font-bold">{review.user?.name}</p>
-          <p className="mt-2">{review.comment}</p>
-        </div>
-      ) : null}
+      {!review ? (
+        <TableSkeleton
+          columns={5}
+          headers={["کاربر", "متن", "وضعیت", "تاریخ", "عملیات"]}
+        />
+      ) : (
+        <>
+      <div className="mb-6 rounded-[10px] bg-[#EFEFEF] p-5 dark:bg-[#4A4E7C]">
+        <p className="font-bold">{review.user?.name}</p>
+        <p className="mt-2">{review.comment}</p>
+      </div>
 
       <div className="mb-6 flex flex-col gap-3">
         <FormTextarea
@@ -137,20 +143,24 @@ export default function AdminReviewRepliesPageClient({ reviewId }: AdminReviewRe
                       تایید
                     </Button>
                   ) : null}
-                  <Button
-                    variant="danger"
-                    size="sm"
-                    disabled={pending}
-                    onClick={() => handleDelete(reply.id)}
-                  >
-                    حذف
-                  </Button>
+                  {reply.can_delete ? (
+                    <Button
+                      variant="danger"
+                      size="sm"
+                      disabled={pending}
+                      onClick={() => handleDelete(reply.id)}
+                    >
+                      حذف
+                    </Button>
+                  ) : null}
                 </div>
               </TableCell>
             </TableRow>
           ))}
         </TableBody>
       </Table>
+        </>
+      )}
     </PageWrapper>
   );
 }

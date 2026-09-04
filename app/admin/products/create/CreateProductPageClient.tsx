@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 import { ProductForm } from "@/components/admin/ProductForm";
 import { PageWrapper } from "@/components/ui/page-wrapper";
+import { FormSkeleton } from "@/components/ui/skeleton";
 import { showErrorToast, showSuccessToast } from "@/components/ui/toast";
 import { createAdminProduct, fetchAdminProductFormData } from "@/lib/admin-api";
 import type { AdminProductFormData } from "@/lib/types";
@@ -34,7 +35,7 @@ export default function CreateProductPageClient() {
   return (
     <PageWrapper title="ایجاد محصول">
       {!formData ? (
-        <p className="text-center">در حال بارگذاری...</p>
+        <FormSkeleton fields={8} columns={2} />
       ) : (
         <ProductForm
           formData={formData}
