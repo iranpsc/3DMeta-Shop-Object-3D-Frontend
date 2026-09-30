@@ -66,7 +66,9 @@ export default function AdminCategoriesPageClient() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {rows.map((category, index) => (
+              {rows.map((category, index) => {
+                const cannotDelete = category.deletable === false;
+                return (
                 <TableRow key={category.id}>
                   <TableCell>{index + 1}</TableCell>
                   <TableCell>{category.name}</TableCell>
@@ -84,7 +86,8 @@ export default function AdminCategoriesPageClient() {
                       <Button
                         variant="danger"
                         size="sm"
-                        disabled={pending}
+                        disabled={pending || cannotDelete}
+                        title={cannotDelete ? "دسته‌بندی دارای محصول قابل حذف نیست" : undefined}
                         onClick={() => handleDelete(category.id)}
                       >
                         حذف
@@ -92,7 +95,8 @@ export default function AdminCategoriesPageClient() {
                     </div>
                   </TableCell>
                 </TableRow>
-              ))}
+                );
+              })}
             </TableBody>
           </Table>
           {categories ? (

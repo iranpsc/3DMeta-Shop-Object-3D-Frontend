@@ -116,7 +116,8 @@ export default function AdminProductsPageClient() {
                       <Button
                         variant="danger"
                         size="sm"
-                        disabled={pending}
+                        disabled={pending || product.sold}
+                        title={product.sold ? "محصول فروخته‌شده قابل حذف نیست" : undefined}
                         onClick={() => handleDelete(product.id)}
                         className="text-sm font-bold"
                       >

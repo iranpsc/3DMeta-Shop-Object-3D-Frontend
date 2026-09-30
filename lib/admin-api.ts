@@ -174,6 +174,17 @@ export async function approveAdminReview(reviewId: number): Promise<string | und
   return res.message ?? undefined;
 }
 
+export async function updateAdminReview(
+  reviewId: number,
+  payload: { comment: string; rating: number },
+): Promise<string | undefined> {
+  const res = await apiFetch<AdminReview>(`/api/v1/admin/reviews/${reviewId}`, {
+    method: "PUT",
+    body: JSON.stringify(payload),
+  });
+  return res.message ?? undefined;
+}
+
 export async function deleteAdminReview(reviewId: number): Promise<string | undefined> {
   const res = await apiFetch<null>(`/api/v1/admin/reviews/${reviewId}`, { method: "DELETE" });
   return res.message ?? undefined;
@@ -203,6 +214,14 @@ export async function createAdminReviewReply(
 export async function approveAdminReviewReply(replyId: number): Promise<string | undefined> {
   const res = await apiFetch<AdminReviewReply>(`/api/v1/admin/review-replies/${replyId}/approve`, {
     method: "POST",
+  });
+  return res.message ?? undefined;
+}
+
+export async function updateAdminReviewReply(replyId: number, comment: string): Promise<string | undefined> {
+  const res = await apiFetch<AdminReviewReply>(`/api/v1/admin/review-replies/${replyId}`, {
+    method: "PUT",
+    body: JSON.stringify({ comment }),
   });
   return res.message ?? undefined;
 }

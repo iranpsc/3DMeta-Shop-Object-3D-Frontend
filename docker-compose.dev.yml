@@ -1,0 +1,69 @@
+# Local development overlay (Next.js watch / hot reload).
+# Usage:
+#   docker compose -f docker-compose.yml -f docker-compose.dev.yml up --watch --build
+#
+# Or set in .env:
+#   COMPOSE_FILE=docker-compose.yml:docker-compose.dev.yml
+# then:
+#   docker compose up --watch --build
+
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+      args:
+        NODE_VERSION: ${NODE_VERSION:-20}
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8000}
+    image: ${IMAGE_NAME:-3drgb-frontend}:${IMAGE_TAG:-dev}
+    ports:
+      - "${HOST_PORT:-3000}:3000"
+    environment:
+      NODE_ENV: development
+      PORT: "3000"
+      HOSTNAME: "0.0.0.0"
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8000}
+      API_INTERNAL_URL: ${API_INTERNAL_URL:-http://3drgb-api}
+      WATCHPACK_POLLING: ${WATCHPACK_POLLING:-"true"}
+      CHOKIDAR_USEPOLLING: ${CHOKIDAR_USEPOLLING:-"true"}
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3000/api/health"]
+      interval: 30s
+      timeout: 5s
+      start_period: 60s
+      retries: 5
+    develop:
+      watch:
+        - action: sync
+          path: ./app
+          target: /app/app
+        - action: sync
+          path: ./components
+          target: /app/components
+        - action: sync
+          path: ./lib
+          target: /app/lib
+        - action: sync
+          path: ./public
+          target: /app/public
+        - action: sync+restart
+          path: ./next.config.ts
+          target: /app/next.config.ts
+        - action: sync+restart
+          path: ./tsconfig.json
+          target: /app/tsconfig.json
+        - action: sync+restart
+          path: ./postcss.config.mjs
+          target: /app/postcss.config.mjs
+        - action: rebuild
+          path: ./package.json
+        - action: rebuild
+          path: ./package-lock.json
+        - action: rebuild
+          path: ./Dockerfile
+
+networks:
+  dokploy-network:
+    name: dokploy-network
+    external: false

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Reviews } from "@/components/product/Reviews";
+import { sanitizeHtml } from "@/lib/sanitize-html";
 import type { ProductDetail, ReviewItem } from "@/lib/types";
 
 type Props = {
@@ -54,9 +55,10 @@ export function ProductDetailTabs({
           <div className="flex flex-col gap-4" role="tabpanel">
             <div className="flex flex-col justify-between gap-5 rounded-[10px] bg-white p-5 px-4 dark:bg-[#1A1A18] dark:text-white">
               <p className="text-gray-800 dark:text-white">توضیحات :</p>
-              <p className="whitespace-pre-line text-[#667085] dark:text-white">
-                {product.long_description}
-              </p>
+              <div
+                className="product-description text-[#667085] dark:text-white [&_a]:text-[#000BEE] [&_a]:underline [&_h1]:mb-3 [&_h1]:text-xl [&_h1]:font-bold [&_h2]:mb-3 [&_h2]:text-lg [&_h2]:font-bold [&_h3]:mb-2 [&_h3]:font-bold [&_li]:my-1 [&_ol]:list-decimal [&_ol]:ps-5 [&_p]:mb-3 [&_table]:w-full [&_td]:border [&_td]:p-2 [&_th]:border [&_th]:p-2 [&_ul]:list-disc [&_ul]:ps-5"
+                dangerouslySetInnerHTML={{ __html: sanitizeHtml(product.long_description ?? "") }}
+              />
             </div>
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
               {attrs.map((attribute) => (

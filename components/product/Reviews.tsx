@@ -4,9 +4,10 @@ import { useState, useTransition } from "react";
 import { FormTextarea } from "@/components/form/textarea";
 import { Button } from "@/components/ui/button";
 import { useToastMessage } from "@/lib/use-toast-message";
-import { submitReview, submitReviewReply } from "@/lib/storefront-client-api";
+import { submitReview, submitReviewReply, updateReview, updateReviewReply } from "@/lib/storefront-client-api";
 import { ApiError } from "@/lib/api-client";
 import { loginRedirect } from "@/lib/auth";
+import { useAuth } from "@/lib/auth-context";
 import type { ReviewItem } from "@/lib/types";
 
 type Props = {
@@ -103,10 +104,16 @@ export function Reviews({
   ratingAvg,
   canReviewHint,
 }: Props) {
-  const [reviews] = useState(initialReviews);
+  const { user } = useAuth();
+  const [reviews, setReviews] = useState(initialReviews);
   const [comment, setComment] = useState("");
   const [rating, setRating] = useState(5);
   const [replyText, setReplyText] = useState<Record<number, string>>({});
+  const [editingReviewId, setEditingReviewId] = useState<number | null>(null);
+  const [editComment, setEditComment] = useState("");
+  const [editRating, setEditRating] = useState(5);
+  const [editingReplyId, setEditingReplyId] = useState<number | null>(null);
+  const [editReplyComment, setEditReplyComment] = useState("");
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -149,6 +156,48 @@ export function Reviews({
           return;
         }
         setError(e instanceof ApiError ? e.message : "خطا در ثبت پاسخ");
+      }
+    });
+  }
+
+  function onUpdateReview(reviewId: number) {
+    setError(null);
+    startTransition(async () => {
+      try {
+        const res = await updateReview(reviewId, { comment: editComment, rating: editRating });
+        setReviews((current) => current.filter((item) => item.id !== reviewId));
+        setEditingReviewId(null);
+        setMessage(res.message ?? "نظر شما ویرایش شد و پس از تایید مجدد نمایش داده خواهد شد.");
+      } catch (e) {
+        if (e instanceof ApiError && e.status === 401) {
+          loginRedirect();
+          return;
+        }
+        setError(e instanceof ApiError ? e.message : "خطا در ویرایش نظر");
+      }
+    });
+  }
+
+  function onUpdateReply(reviewId: number, replyId: number) {
+    setError(null);
+    startTransition(async () => {
+      try {
+        const res = await updateReviewReply(replyId, editReplyComment);
+        setReviews((current) =>
+          current.map((item) =>
+            item.id === reviewId
+              ? { ...item, replies: item.replies?.filter((reply) => reply.id !== replyId) }
+              : item,
+          ),
+        );
+        setEditingReplyId(null);
+        setMessage(res.message ?? "پاسخ شما ویرایش شد و پس از تایید مجدد نمایش داده خواهد شد.");
+      } catch (e) {
+        if (e instanceof ApiError && e.status === 401) {
+          loginRedirect();
+          return;
+        }
+        setError(e instanceof ApiError ? e.message : "خطا در ویرایش پاسخ");
       }
     });
   }
@@ -212,7 +261,46 @@ export function Reviews({
               </div>
             </div>
             <div className="mt-5 space-y-5 text-sm text-[#1d29399d] dark:text-gray-200">
-              <p>{review.comment}</p>
+              {editingReviewId === review.id ? (
+                <div className="flex flex-col gap-3">
+                  <StarRatingInput value={editRating} onChange={setEditRating} />
+                  <FormTextarea
+                    name={`edit-review-${review.id}`}
+                    value={editComment}
+                    onChange={(e) => setEditComment(e.target.value)}
+                    rows={3}
+                  />
+                  <div className="flex gap-3">
+                    <Button
+                      variant="primary"
+                      disabled={isPending || editComment.trim().length < 3}
+                      onClick={() => onUpdateReview(review.id)}
+                      className="w-max"
+                    >
+                      ذخیره
+                    </Button>
+                    <Button variant="unstyled" disabled={isPending} onClick={() => setEditingReviewId(null)}>
+                      انصراف
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <p>{review.comment}</p>
+              )}
+              {user?.id === review.user?.id && editingReviewId !== review.id ? (
+                <Button
+                  variant="unstyled"
+                  disabled={isPending}
+                  className="text-xs text-[#000BEE] disabled:cursor-not-allowed disabled:opacity-60 dark:text-[#E59819]"
+                  onClick={() => {
+                    setEditingReviewId(review.id);
+                    setEditComment(review.comment);
+                    setEditRating(review.rating);
+                  }}
+                >
+                  ویرایش
+                </Button>
+              ) : null}
               <div className="mt-5 flex items-center justify-between gap-4">
                 <FormTextarea
                   name={`reply-${review.id}`}
@@ -245,7 +333,44 @@ export function Reviews({
                   className="mr-6 mt-3 rounded bg-gray-50 p-3 text-sm dark:bg-[#271A04]"
                 >
                   <div className="font-bold">{reply.user?.name}</div>
-                  <p>{reply.comment}</p>
+                  {editingReplyId === reply.id ? (
+                    <div className="mt-2 flex flex-col gap-3">
+                      <FormTextarea
+                        name={`edit-reply-${reply.id}`}
+                        value={editReplyComment}
+                        onChange={(e) => setEditReplyComment(e.target.value)}
+                        rows={2}
+                      />
+                      <div className="flex gap-3">
+                        <Button
+                          variant="primary"
+                          disabled={isPending || editReplyComment.trim().length < 3}
+                          onClick={() => onUpdateReply(review.id, reply.id)}
+                          className="w-max"
+                        >
+                          ذخیره
+                        </Button>
+                        <Button variant="unstyled" disabled={isPending} onClick={() => setEditingReplyId(null)}>
+                          انصراف
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <p>{reply.comment}</p>
+                  )}
+                  {user?.id === reply.user?.id && editingReplyId !== reply.id ? (
+                    <Button
+                      variant="unstyled"
+                      disabled={isPending}
+                      className="mt-2 text-xs text-[#000BEE] disabled:cursor-not-allowed disabled:opacity-60 dark:text-[#E59819]"
+                      onClick={() => {
+                        setEditingReplyId(reply.id);
+                        setEditReplyComment(reply.comment);
+                      }}
+                    >
+                      ویرایش
+                    </Button>
+                  ) : null}
                 </div>
               ))}
             </div>

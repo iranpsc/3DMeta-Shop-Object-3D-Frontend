@@ -18,12 +18,6 @@ function avatarSrc(avatar: string | null | undefined) {
   return `${getApiBaseUrl()}/storage/${avatar}`;
 }
 
-function attachmentHref(path: string | null | undefined) {
-  if (!path) return null;
-  if (path.startsWith("http")) return path;
-  return `${getApiBaseUrl()}/storage/${path}`;
-}
-
 function priorityBadgeClass(priority: string) {
   switch (priority) {
     case "high":
@@ -105,7 +99,7 @@ export default function ShowTicketPageClient({ ticketId }: { ticketId: number })
     );
   }
 
-  const attachmentUrl = attachmentHref(ticket.attachment);
+  const attachmentUrl = ticket.attachment_url ?? null;
 
   return (
     <PageWrapper title="جزئیات تیکت">
@@ -270,6 +264,16 @@ export default function ShowTicketPageClient({ ticketId }: { ticketId: number })
                     <p className="whitespace-pre-wrap text-[15px] font-normal leading-7 text-[#5B6577] dark:text-gray-300">
                       {response.message}
                     </p>
+                    {response.attachment_url ? (
+                      <a
+                        href={response.attachment_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="mt-2 inline-flex items-center gap-1 text-xs font-bold text-[#000BEE] hover:underline dark:text-[#E59819]"
+                      >
+                        📎 {response.attachment_name ?? "فایل پیوست"}
+                      </a>
+                    ) : null}
                   </div>
                 </article>
               ))

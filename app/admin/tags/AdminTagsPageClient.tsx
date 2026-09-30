@@ -79,7 +79,9 @@ export default function AdminTagsPageClient() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {rows.map((tag, index) => (
+              {rows.map((tag, index) => {
+                const cannotDelete = (tag.products_count ?? 0) > 0;
+                return (
                 <TableRow key={tag.id}>
                   <TableCell>{index + 1}</TableCell>
                   <TableCell>{tag.name}</TableCell>
@@ -88,14 +90,16 @@ export default function AdminTagsPageClient() {
                     <Button
                       variant="danger"
                       size="sm"
-                      disabled={pending}
+                      disabled={pending || cannotDelete}
+                      title={cannotDelete ? "برچسب متصل به محصول قابل حذف نیست" : undefined}
                       onClick={() => handleDelete(tag.id)}
                     >
                       حذف
                     </Button>
                   </TableCell>
                 </TableRow>
-              ))}
+                );
+              })}
             </TableBody>
           </Table>
           {tags ? (

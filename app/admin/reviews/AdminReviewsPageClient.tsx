@@ -2,19 +2,24 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useState, useTransition } from "react";
+import { FormTextarea } from "@/components/form/textarea";
 import { Button } from "@/components/ui/button";
 import { Pagination } from "@/components/ui/pagination";
 import { confirmDialog } from "@/components/ui/confirm-dialog";
+import { Modal } from "@/components/ui/modal";
 import { PageWrapper } from "@/components/ui/page-wrapper";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { showErrorToast, showSuccessToast } from "@/components/ui/toast";
-import { approveAdminReview, deleteAdminReview, fetchAdminReviews } from "@/lib/admin-api";
+import { approveAdminReview, deleteAdminReview, fetchAdminReviews, updateAdminReview } from "@/lib/admin-api";
 import type { AdminReview, Paginated } from "@/lib/types";
 
 export default function AdminReviewsPageClient() {
   const [reviews, setReviews] = useState<Paginated<AdminReview> | null>(null);
   const [page, setPage] = useState(1);
   const [pending, startTransition] = useTransition();
+  const [editing, setEditing] = useState<AdminReview | null>(null);
+  const [comment, setComment] = useState("");
+  const [rating, setRating] = useState(5);
 
   const loadReviews = useCallback(() => {
     fetchAdminReviews(page)
@@ -51,6 +56,26 @@ export default function AdminReviewsPageClient() {
         loadReviews();
       } catch {
         showErrorToast("حذف دیدگاه با خطا مواجه شد.");
+      }
+    });
+  }
+
+  function openEdit(review: AdminReview) {
+    setEditing(review);
+    setComment(review.comment);
+    setRating(review.rating);
+  }
+
+  function handleUpdate() {
+    if (!editing) return;
+    startTransition(async () => {
+      try {
+        const msg = await updateAdminReview(editing.id, { comment, rating });
+        showSuccessToast(msg ?? "دیدگاه ویرایش شد و در انتظار تایید مجدد است.");
+        setEditing(null);
+        loadReviews();
+      } catch {
+        showErrorToast("ویرایش دیدگاه با خطا مواجه شد.");
       }
     });
   }
@@ -114,9 +139,18 @@ export default function AdminReviewsPageClient() {
                       </Button>
                     ) : null}
                     <Button
-                      variant="danger"
+                      variant="admin"
                       size="sm"
                       disabled={pending}
+                      onClick={() => openEdit(review)}
+                    >
+                      ویرایش
+                    </Button>
+                    <Button
+                      variant="danger"
+                      size="sm"
+                      disabled={pending || review.approved}
+                      title={review.approved ? "دیدگاه تایید شده قابل حذف نیست" : undefined}
                       onClick={() => handleDelete(review.id)}
                     >
                       حذف
@@ -132,6 +166,46 @@ export default function AdminReviewsPageClient() {
       {reviews ? (
         <Pagination currentPage={page} lastPage={reviews.meta.last_page} onPageChange={setPage} />
       ) : null}
+
+      <Modal
+        open={editing !== null}
+        title="ویرایش دیدگاه"
+        onClose={() => setEditing(null)}
+        footer={
+          <div className="flex gap-3">
+            <Button variant="admin" onClick={handleUpdate} disabled={pending || comment.trim().length < 3}>
+              ذخیره
+            </Button>
+            <Button variant="danger" onClick={() => setEditing(null)}>
+              بستن
+            </Button>
+          </div>
+        }
+      >
+        <div className="flex min-w-[min(100%,32rem)] flex-col gap-4">
+          <label className="flex flex-col gap-2 text-sm">
+            امتیاز
+            <select
+              value={rating}
+              onChange={(event) => setRating(Number(event.target.value))}
+              className="rounded-[10px] border border-[#EFEFEF] bg-white p-2 dark:border-gray-700 dark:bg-black"
+            >
+              {[1, 2, 3, 4, 5].map((value) => (
+                <option key={value} value={value}>
+                  {value}
+                </option>
+              ))}
+            </select>
+          </label>
+          <FormTextarea
+            name="review-comment"
+            label="متن"
+            value={comment}
+            onChange={(event) => setComment(event.target.value)}
+            rows={4}
+          />
+        </div>
+      </Modal>
     </PageWrapper>
   );
 }

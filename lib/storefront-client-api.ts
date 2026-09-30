@@ -35,6 +35,20 @@ export async function submitReviewReply(reviewId: number, comment: string) {
   });
 }
 
+export async function updateReview(reviewId: number, payload: { comment: string; rating: number }) {
+  return apiFetch(`/api/v1/reviews/${reviewId}`, {
+    method: "PUT",
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function updateReviewReply(replyId: number, comment: string) {
+  return apiFetch(`/api/v1/review-replies/${replyId}`, {
+    method: "PUT",
+    body: JSON.stringify({ comment }),
+  });
+}
+
 /** Client-side product list (tab switching / store filters). */
 export async function clientFetchProducts(params: Record<string, string | number | undefined>) {
   const qs = new URLSearchParams();

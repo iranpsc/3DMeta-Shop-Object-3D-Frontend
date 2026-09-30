@@ -1,4 +1,4 @@
-# syntax=docker.arvancloud.ir/docker/dockerfile:1.7
+# syntax=docker/dockerfile:1.7
 
 # Official Docker best practices for Next.js:
 # - multi-stage build
@@ -6,18 +6,16 @@
 # - BuildKit cache mounts
 # - standalone output (minimal runtime image)
 # - non-root user
-# Base images pulled via Arvan Cloud Docker repository mirror.
+# Base images: official Docker Hub (node)
 
-ARG DOCKER_REGISTRY=docker.arvancloud.ir
 ARG NODE_VERSION=20
 
 # -----------------------------------------------------------------------------
 # Stage 1: Install dependencies (cached unless lockfile changes)
 # -----------------------------------------------------------------------------
-FROM ${DOCKER_REGISTRY}/library/node:${NODE_VERSION}-alpine AS deps
+FROM node:${NODE_VERSION}-alpine AS deps
 
-RUN sed -i 's|https://dl-cdn.alpinelinux.org|https://mirror.arvancloud.ir|g' /etc/apk/repositories \
-  && apk add --no-cache libc6-compat
+RUN apk add --no-cache libc6-compat
 
 WORKDIR /app
 
@@ -30,7 +28,7 @@ RUN --mount=type=cache,target=/root/.npm \
 # -----------------------------------------------------------------------------
 # Stage 2: Build the Next.js application
 # -----------------------------------------------------------------------------
-FROM ${DOCKER_REGISTRY}/library/node:${NODE_VERSION}-alpine AS builder
+FROM node:${NODE_VERSION}-alpine AS builder
 
 WORKDIR /app
 
@@ -47,12 +45,38 @@ RUN --mount=type=cache,target=/app/.next/cache \
   npm run build
 
 # -----------------------------------------------------------------------------
-# Stage 3: Minimal production runner
+# Stage 3: Local development (Compose watch / next dev)
 # -----------------------------------------------------------------------------
-FROM ${DOCKER_REGISTRY}/library/node:${NODE_VERSION}-alpine AS runner
+FROM node:${NODE_VERSION}-alpine AS development
 
-RUN sed -i 's|https://dl-cdn.alpinelinux.org|https://mirror.arvancloud.ir|g' /etc/apk/repositories \
-  && apk add --no-cache wget \
+RUN apk add --no-cache libc6-compat wget
+
+WORKDIR /app
+
+COPY package.json package-lock.json ./
+
+RUN --mount=type=cache,target=/root/.npm \
+  npm ci
+
+COPY . .
+
+ARG NEXT_PUBLIC_API_URL=http://localhost:8000
+ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV NODE_ENV=development
+ENV PORT=3000
+ENV HOSTNAME=0.0.0.0
+
+EXPOSE 3000
+
+CMD ["npm", "run", "dev", "--", "-H", "0.0.0.0", "-p", "3000"]
+
+# -----------------------------------------------------------------------------
+# Stage 4: Minimal production runner
+# -----------------------------------------------------------------------------
+FROM node:${NODE_VERSION}-alpine AS runner
+
+RUN apk add --no-cache wget \
   && addgroup --system --gid 1001 nodejs \
   && adduser --system --uid 1001 nextjs
 

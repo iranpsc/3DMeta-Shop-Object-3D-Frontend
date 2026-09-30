@@ -29,7 +29,12 @@ export class ApiError extends Error {
   }
 }
 
-const BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+const PUBLIC_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+/** Server-only base URL (Docker network hostname). Falls back to public URL. */
+const INTERNAL_BASE =
+  process.env.API_INTERNAL_URL?.trim() ||
+  process.env.INTERNAL_API_URL?.trim() ||
+  "";
 
 let csrfReady = false;
 
@@ -51,7 +56,7 @@ async function ensureCsrfCookie(): Promise<void> {
     return;
   }
 
-  await fetch(`${BASE}/sanctum/csrf-cookie`, {
+  await fetch(`${getApiBaseUrl()}/sanctum/csrf-cookie`, {
     method: "GET",
     credentials: "include",
     headers: {
@@ -88,7 +93,7 @@ export async function apiFetch<T>(
     headers.set("X-XSRF-TOKEN", xsrf);
   }
 
-  const res = await fetch(`${BASE}${path}`, {
+  const res = await fetch(`${getApiBaseUrl()}${path}`, {
     ...init,
     method,
     credentials: "include",
@@ -113,7 +118,11 @@ export async function apiFetch<T>(
 }
 
 export function getApiBaseUrl(): string {
-  return BASE;
+  // Browser must use the public URL; SSR inside Docker should use the service name.
+  if (typeof window === "undefined" && INTERNAL_BASE) {
+    return INTERNAL_BASE.replace(/\/$/, "");
+  }
+  return PUBLIC_BASE.replace(/\/$/, "");
 }
 
 export async function prepareCsrfForUpload(): Promise<string | null> {
