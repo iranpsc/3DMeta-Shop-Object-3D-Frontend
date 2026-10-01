@@ -199,7 +199,7 @@ export default function ShowTicketPageClient({ ticketId }: { ticketId: number })
                 <a
                   href={attachmentUrl}
                   target="_blank"
-                  rel="noopener noreferrer"
+                  rel="noopener"
                   className="group flex items-center gap-3 rounded-xl border border-[#E8EEF8] bg-[#F7FAFF] p-4 transition hover:border-[#000BEE]/30 hover:bg-[#EEF3FF] dark:border-[#2A2A28] dark:bg-[#111110] dark:hover:border-[#E59819]/40 dark:hover:bg-[#1F1A12]"
                 >
                   <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#000BEE]/10 text-[#000BEE] dark:bg-[#E59819]/15 dark:text-[#E59819]">
@@ -268,7 +268,7 @@ export default function ShowTicketPageClient({ ticketId }: { ticketId: number })
                       <a
                         href={response.attachment_url}
                         target="_blank"
-                        rel="noopener noreferrer"
+                        rel="noopener"
                         className="mt-2 inline-flex items-center gap-1 text-xs font-bold text-[#000BEE] hover:underline dark:text-[#E59819]"
                       >
                         📎 {response.attachment_name ?? "فایل پیوست"}
