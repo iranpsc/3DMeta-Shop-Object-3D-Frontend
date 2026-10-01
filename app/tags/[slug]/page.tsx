@@ -6,6 +6,12 @@ import { ProductCard } from "@/components/ui/product-card";
 import { LegalTopBar } from "@/components/layout/LegalTopBar";
 import { StorefrontBreadcrumb } from "@/components/layout/StorefrontBreadcrumb";
 import { TopLevelCategorySlider } from "@/components/home/TopLevelCategorySlider";
+import { JsonLd } from "@/components/seo/JsonLd";
+import {
+  absoluteUrl,
+  createBreadcrumbSchema,
+  createCollectionPageSchema,
+} from "@/lib/seo";
 import {
   fetchTagProducts,
   fetchTopLevelCategories,
@@ -22,9 +28,18 @@ export async function generateMetadata({
   try {
     const { slug } = await params;
     const data = await fetchTagProducts(slug);
+    const tagUrl = `/tags/${slug}`;
     return {
-      title: data.tag.name,
-      description: `محصولات برچسب ${data.tag.name}`,
+      title: `${data.tag.name} - محصولات با برچسب`,
+      description: `خرید و دانلود انواع مدل‌های سه بعدی با برچسب ${data.tag.name}`,
+      alternates: {
+        canonical: tagUrl,
+      },
+      openGraph: {
+        title: `برچسب ${data.tag.name}`,
+        description: `خرید و دانلود انواع مدل‌های سه بعدی با برچسب ${data.tag.name}`,
+        url: absoluteUrl(tagUrl),
+      },
     };
   } catch {
     return { title: "برچسب" };
@@ -55,9 +70,24 @@ export default async function TagPage({
   }
 
   const products = data.products.data ?? [];
+  const tagUrl = `/tags/${slug}`;
+
+  const collectionSchema = createCollectionPageSchema({
+    title: `محصولات با برچسب ${data.tag.name}`,
+    description: `خرید و دانلود انواع مدل‌های سه بعدی با برچسب ${data.tag.name}`,
+    url: tagUrl,
+  });
+
+  const breadcrumbSchema = createBreadcrumbSchema([
+    { name: "خانه", url: "/" },
+    { name: "محصولات", url: "/products" },
+    { name: data.tag.name, url: tagUrl },
+  ]);
 
   return (
-    <main>
+    <>
+      <JsonLd data={[collectionSchema, breadcrumbSchema]} />
+      <main>
       <LegalTopBar />
       <section className="mx-auto mt-24 max-w-[1500px] p-4 lg:mt-4 lg:p-9 lg:pt-0">
         <StorefrontBreadcrumb
@@ -111,5 +141,6 @@ export default async function TagPage({
         </div>
       </section>
     </main>
-  );
+  </>
+);
 }

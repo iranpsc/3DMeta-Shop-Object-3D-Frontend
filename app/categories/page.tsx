@@ -4,6 +4,12 @@ import { Pagination } from "@/components/ui/pagination";
 import { LegalTopBar } from "@/components/layout/LegalTopBar";
 import { StorefrontBreadcrumb } from "@/components/layout/StorefrontBreadcrumb";
 import { TopLevelCategorySlider } from "@/components/home/TopLevelCategorySlider";
+import { JsonLd } from "@/components/seo/JsonLd";
+import {
+  absoluteUrl,
+  createBreadcrumbSchema,
+  createCollectionPageSchema,
+} from "@/lib/seo";
 import {
   fetchCategoriesPage,
   fetchTopLevelCategories,
@@ -11,7 +17,18 @@ import {
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "دسته بندی محصولات",
+  title: "دسته‌بندی‌های محصولات سه بعدی",
+  description:
+    "دسته‌بندی‌های تخصصی انواع مدل‌های سه بعدی، انیمیشن، آیکون و فایل‌های طراحی",
+  alternates: {
+    canonical: "/categories",
+  },
+  openGraph: {
+    title: "دسته‌بندی‌های محصولات | سه بعدی متا",
+    description:
+      "دسته‌بندی‌های تخصصی انواع مدل‌های سه بعدی، انیمیشن، آیکون و فایل‌های طراحی",
+    url: absoluteUrl("/categories"),
+  },
 };
 
 const DEFAULT_IMAGE = "/home-page/images/default-product.jpg";
@@ -43,8 +60,22 @@ export default async function CategoriesPage({
     // API may be offline during local UI/E2E shell checks
   }
 
+  const collectionSchema = createCollectionPageSchema({
+    title: "دسته‌بندی‌های محصولات",
+    description:
+      "دسته‌بندی‌های تخصصی انواع مدل‌های سه بعدی، انیمیشن، آیکون و فایل‌های طراحی",
+    url: "/categories",
+  });
+
+  const breadcrumbSchema = createBreadcrumbSchema([
+    { name: "خانه", url: "/" },
+    { name: "دسته‌بندی‌ها", url: "/categories" },
+  ]);
+
   return (
-    <main>
+    <>
+      <JsonLd data={[collectionSchema, breadcrumbSchema]} />
+      <main>
       <LegalTopBar />
       <section className="mx-auto mt-24 max-w-[1500px] p-4 lg:mt-4 lg:p-9 lg:pt-0">
         <StorefrontBreadcrumb
@@ -101,5 +132,6 @@ export default async function CategoriesPage({
         </div>
       </section>
     </main>
-  );
+  </>
+);
 }

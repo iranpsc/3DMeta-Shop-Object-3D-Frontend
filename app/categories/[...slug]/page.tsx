@@ -6,6 +6,12 @@ import { ProductCard } from "@/components/ui/product-card";
 import { LegalTopBar } from "@/components/layout/LegalTopBar";
 import { StorefrontBreadcrumb } from "@/components/layout/StorefrontBreadcrumb";
 import { TopLevelCategorySlider } from "@/components/home/TopLevelCategorySlider";
+import { JsonLd } from "@/components/seo/JsonLd";
+import {
+  absoluteUrl,
+  createBreadcrumbSchema,
+  createCollectionPageSchema,
+} from "@/lib/seo";
 import {
   fetchCategory,
   fetchTopLevelCategories,
@@ -21,10 +27,23 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   try {
     const { slug } = await params;
-    const category = await fetchCategory(slug.join("/"));
+    const slugPath = slug.join("/");
+    const category = await fetchCategory(slugPath);
+    const categoryUrl = `/categories/${slugPath}`;
+    const image = category.image?.url ? absoluteUrl(category.image.url) : undefined;
+
     return {
-      title: category.name,
+      title: `${category.name} - دسته بندی محصولات`,
       description: category.description ?? undefined,
+      alternates: {
+        canonical: categoryUrl,
+      },
+      openGraph: {
+        title: category.name,
+        description: category.description ?? undefined,
+        url: absoluteUrl(categoryUrl),
+        images: image ? [image] : undefined,
+      },
     };
   } catch {
     return { title: "دسته بندی" };
@@ -66,8 +85,24 @@ export default async function CategoryShowPage({ params }: { params: Params }) {
     })),
   ];
 
+  const categoryUrl = `/categories/${slugPath}`;
+  const collectionSchema = createCollectionPageSchema({
+    title: `دسته بندی ${category.name}`,
+    description: category.description ?? undefined,
+    url: categoryUrl,
+  });
+
+  const breadcrumbSchema = createBreadcrumbSchema(
+    crumbs.map((c) => ({
+      name: c.label,
+      url: c.href,
+    }))
+  );
+
   return (
-    <main>
+    <>
+      <JsonLd data={[collectionSchema, breadcrumbSchema]} />
+      <main>
       <LegalTopBar />
       <section className="mx-auto mt-24 max-w-[1500px] p-4 lg:mt-4 lg:p-9 lg:pt-0">
         <StorefrontBreadcrumb
@@ -145,5 +180,6 @@ export default async function CategoryShowPage({ params }: { params: Params }) {
         </div>
       </section>
     </main>
-  );
+  </>
+);
 }

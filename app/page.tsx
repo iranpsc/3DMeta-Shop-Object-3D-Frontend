@@ -7,6 +7,8 @@ import { PopularCategories } from "@/components/home/PopularCategories";
 import { TabSwitcher } from "@/components/home/TabSwitcher";
 import { TopLevelCategorySlider } from "@/components/home/TopLevelCategorySlider";
 import { LegalTopBar } from "@/components/layout/LegalTopBar";
+import { JsonLd } from "@/components/seo/JsonLd";
+import { ORGANIZATION_SCHEMA, WEBSITE_SCHEMA, absoluteUrl } from "@/lib/seo";
 import {
   fetchHomeProducts,
   fetchPopularCategories,
@@ -18,11 +20,15 @@ export const metadata: Metadata = {
   description:
     "مرکز عرضه جدیدترین مدل سه بعدی، آیکون، انیمیشن و فایل های طراحی با تعرفه ثابت",
   keywords: "مدل سه بعدی, فروشگاه مدل سه بعدی, انیمیشن سه بعدی, آیکون, طراحی سه بعدی",
+  alternates: {
+    canonical: "/",
+  },
   openGraph: {
     title: "سه بعدی متا",
     description:
       "مرکز عرضه جدیدترین مدل سه بعدی، آیکون، انیمیشن و فایل های طراحی",
-    images: ["/home-page/images/Asset2.png"],
+    url: absoluteUrl("/"),
+    images: [absoluteUrl("/home-page/images/Asset2.png")],
   },
 };
 
@@ -43,6 +49,7 @@ export default async function HomePage() {
 
   return (
     <div>
+      <JsonLd data={[WEBSITE_SCHEMA, ORGANIZATION_SCHEMA]} />
       <main>
         <LegalTopBar />
 

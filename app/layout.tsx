@@ -1,14 +1,39 @@
 import type { Metadata } from "next";
 import { Providers } from "@/components/providers";
 import { NavigationProgress } from "@/components/ui/navigation-progress";
+import { SITE_URL } from "@/lib/seo";
 import "sweetalert2/dist/sweetalert2.min.css";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "سه بعدی متا",
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: "سه بعدی متا - فروشگاه مدل های سه بعدی",
+    template: "%s | سه بعدی متا",
+  },
   description:
     "سامانه سه بعدی متا با تعرفه ای ثابت مرکز عرضه جدید ترین مدل سه بعدی ، آیکون ، انیمیشن و دیگر فایل های طراحی میباشد .",
   authors: [{ name: "سه بعدی متا" }],
+  alternates: {
+    canonical: "./",
+  },
+  openGraph: {
+    type: "website",
+    locale: "fa_IR",
+    siteName: "سه بعدی متا",
+    url: SITE_URL,
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
 };
 
 export default function RootLayout({

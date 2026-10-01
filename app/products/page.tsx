@@ -7,6 +7,12 @@ import {
   buildApiParams,
   parseStoreFilters,
 } from "@/components/store/store-utils";
+import { JsonLd } from "@/components/seo/JsonLd";
+import {
+  absoluteUrl,
+  createBreadcrumbSchema,
+  createCollectionPageSchema,
+} from "@/lib/seo";
 import {
   fetchStoreFilters,
   fetchTopLevelCategories,
@@ -15,7 +21,18 @@ import { serverApiFetch } from "@/lib/server-api";
 import type { PaginationMeta, ProductCard as ProductType } from "@/lib/types";
 
 export const metadata: Metadata = {
-  title: "محصولات",
+  title: "محصولات سه بعدی - فروشگاه مدل و آبجکت سه بعدی",
+  description:
+    "مشاهده و دانلود انواع مدل‌های سه بعدی، کاراکتر، آبجکت معماری، انیمیشن و فایل‌های طراحی",
+  alternates: {
+    canonical: "/products",
+  },
+  openGraph: {
+    title: "محصولات سه بعدی | سه بعدی متا",
+    description:
+      "مشاهده و دانلود انواع مدل‌های سه بعدی، کاراکتر، آبجکت معماری، انیمیشن و فایل‌های طراحی",
+    url: absoluteUrl("/products"),
+  },
 };
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
@@ -72,8 +89,22 @@ export default async function ProductsPage({
     // API may be offline during local UI/E2E shell checks
   }
 
+  const collectionSchema = createCollectionPageSchema({
+    title: "محصولات سه بعدی",
+    description:
+      "مشاهده و دانلود انواع مدل‌های سه بعدی، کاراکتر، آبجکت معماری، انیمیشن و فایل‌های طراحی",
+    url: "/products",
+  });
+
+  const breadcrumbSchema = createBreadcrumbSchema([
+    { name: "خانه", url: "/" },
+    { name: "محصولات", url: "/products" },
+  ]);
+
   return (
-    <main className="overflow-x-hidden">
+    <>
+      <JsonLd data={[collectionSchema, breadcrumbSchema]} />
+      <main className="overflow-x-hidden">
       <LegalTopBar />
       <section className="mx-auto mt-24 max-w-[1500px] overflow-x-hidden p-4 lg:mt-4 lg:p-9 lg:pt-0">
         <StorefrontBreadcrumb
@@ -96,5 +127,6 @@ export default async function ProductsPage({
         tags={filters.tags ?? []}
       />
     </main>
-  );
+  </>
+);
 }
