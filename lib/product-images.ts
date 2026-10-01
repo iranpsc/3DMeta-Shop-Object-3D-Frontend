@@ -24,7 +24,7 @@ function unwrapImage(
   };
 }
 
-function unwrapImages(raw: unknown): ProductImage[] {
+export function unwrapImages(raw: unknown): ProductImage[] {
   if (!raw) {
     return [];
   }

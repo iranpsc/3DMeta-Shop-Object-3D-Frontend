@@ -60,13 +60,13 @@ export default function EditProductPageClient({ productId }: EditProductPageClie
           onSubmit={handleSubmit}
           pending={pending}
           submitLabel="بروزرسانی محصول"
+          footer={
+            <Button type="button" variant="neutral" size="lg" onClick={() => router.push("/admin/products")}>
+              بازگشت
+            </Button>
+          }
         />
       )}
-      <div className="mt-6">
-        <Button variant="neutral" onClick={() => router.push("/admin/products")}>
-          بازگشت
-        </Button>
-      </div>
     </PageWrapper>
   );
 }

@@ -74,6 +74,20 @@ export async function deleteAdminProduct(productId: number): Promise<string | un
   return res.message ?? undefined;
 }
 
+export async function deleteAdminProductImage(productId: number, imageId: number): Promise<AdminProduct> {
+  const res = await apiFetch<AdminProduct>(`/api/v1/admin/products/${productId}/images/${imageId}`, {
+    method: "DELETE",
+  });
+  return res.data;
+}
+
+export async function deleteAdminProductFile(productId: number, fileId: number): Promise<AdminProduct> {
+  const res = await apiFetch<AdminProduct>(`/api/v1/admin/products/${productId}/files/${fileId}`, {
+    method: "DELETE",
+  });
+  return res.data;
+}
+
 export async function importAdminProducts(file: File): Promise<string | undefined> {
   const form = new FormData();
   form.append("file", file);
