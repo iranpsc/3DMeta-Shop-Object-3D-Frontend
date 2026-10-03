@@ -1,12 +1,14 @@
 import type { Metadata } from "next";
 import { Providers } from "@/components/providers";
 import { NavigationProgress } from "@/components/ui/navigation-progress";
-import { SITE_URL } from "@/lib/seo";
+import { getSiteUrl } from "@/lib/seo";
 import "sweetalert2/dist/sweetalert2.min.css";
 import "./globals.css";
 
-export const metadata: Metadata = {
-  metadataBase: new URL(SITE_URL),
+export function generateMetadata(): Metadata {
+  const siteUrl = getSiteUrl();
+  return {
+  metadataBase: new URL(siteUrl),
   title: {
     default: "سه بعدی متا - فروشگاه مدل های سه بعدی",
     template: "%s | سه بعدی متا",
@@ -18,7 +20,7 @@ export const metadata: Metadata = {
     type: "website",
     locale: "fa_IR",
     siteName: "سه بعدی متا",
-    url: SITE_URL,
+    url: siteUrl,
   },
   robots: {
     index: true,
@@ -31,7 +33,8 @@ export const metadata: Metadata = {
       "max-snippet": -1,
     },
   },
-};
+  };
+}
 
 export default function RootLayout({
   children,

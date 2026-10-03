@@ -3,51 +3,53 @@ import { ContactForm } from "@/components/contact/ContactForm";
 import { LegalTopBar } from "@/components/layout/LegalTopBar";
 import { JsonLd } from "@/components/seo/JsonLd";
 import {
-  ORGANIZATION_ID,
-  ORGANIZATION_SCHEMA,
-  WEBSITE_ID,
+  createOrganizationSchema,
+  organizationId,
+  websiteId,
   absoluteUrl,
   createBreadcrumbSchema,
 } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: { absolute: "ارتباط با سه بعدی متا" },
-  description:
-    "راه‌های ارتباطی با فروشگاه سه بعدی متا، پشتیبانی تلفنی، ایمیل و ثبت پیام مستقیم",
-  alternates: {
-    canonical: absoluteUrl("/contact-us"),
-  },
-  openGraph: {
-    title: "ارتباط با سه بعدی متا",
+export function generateMetadata(): Metadata {
+  return {
+    title: { absolute: "ارتباط با سه بعدی متا" },
     description:
       "راه‌های ارتباطی با فروشگاه سه بعدی متا، پشتیبانی تلفنی، ایمیل و ثبت پیام مستقیم",
-    url: absoluteUrl("/contact-us"),
-  },
-};
-
-const contactPageSchema = {
-  "@context": "https://schema.org",
-  "@type": "ContactPage",
-  "@id": absoluteUrl("/contact-us"),
-  name: "ارتباط با سه بعدی متا",
-  url: absoluteUrl("/contact-us"),
-  inLanguage: "fa-IR",
-  isPartOf: { "@id": WEBSITE_ID },
-  description:
-    "راه‌های ارتباطی با فروشگاه سه بعدی متا، پشتیبانی تلفنی، ایمیل و ثبت پیام مستقیم",
-  about: { "@id": ORGANIZATION_ID },
-  mainEntity: { "@id": ORGANIZATION_ID },
-};
-
-const breadcrumbSchema = createBreadcrumbSchema([
-  { name: "خانه", url: "/" },
-  { name: "تماس با ما", url: "/contact-us" },
-]);
+    alternates: {
+      canonical: absoluteUrl("/contact-us"),
+    },
+    openGraph: {
+      title: "ارتباط با سه بعدی متا",
+      description:
+        "راه‌های ارتباطی با فروشگاه سه بعدی متا، پشتیبانی تلفنی، ایمیل و ثبت پیام مستقیم",
+      url: absoluteUrl("/contact-us"),
+    },
+  };
+}
 
 export default function ContactUsPage() {
+  const contactPageSchema = {
+    "@context": "https://schema.org",
+    "@type": "ContactPage",
+    "@id": absoluteUrl("/contact-us"),
+    name: "ارتباط با سه بعدی متا",
+    url: absoluteUrl("/contact-us"),
+    inLanguage: "fa-IR",
+    isPartOf: { "@id": websiteId() },
+    description:
+      "راه‌های ارتباطی با فروشگاه سه بعدی متا، پشتیبانی تلفنی، ایمیل و ثبت پیام مستقیم",
+    about: { "@id": organizationId() },
+    mainEntity: { "@id": organizationId() },
+  };
+
+  const breadcrumbSchema = createBreadcrumbSchema([
+    { name: "خانه", url: "/" },
+    { name: "تماس با ما", url: "/contact-us" },
+  ]);
+
   return (
     <div>
-      <JsonLd data={[contactPageSchema, ORGANIZATION_SCHEMA, breadcrumbSchema]} />
+      <JsonLd data={[contactPageSchema, createOrganizationSchema(), breadcrumbSchema]} />
       <main>
         <LegalTopBar />
         <section className="mx-auto mt-24 max-w-[1500px] p-4 lg:mt-14 lg:p-9">

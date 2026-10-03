@@ -8,7 +8,7 @@ import { TabSwitcher } from "@/components/home/TabSwitcher";
 import { TopLevelCategorySlider } from "@/components/home/TopLevelCategorySlider";
 import { LegalTopBar } from "@/components/layout/LegalTopBar";
 import { JsonLd } from "@/components/seo/JsonLd";
-import { ORGANIZATION_SCHEMA, WEBSITE_SCHEMA, absoluteUrl } from "@/lib/seo";
+import { createOrganizationSchema, createWebsiteSchema, absoluteUrl } from "@/lib/seo";
 import {
   fetchHomeProducts,
   fetchPopularCategories,
@@ -49,7 +49,7 @@ export default async function HomePage() {
 
   return (
     <div>
-      <JsonLd data={[WEBSITE_SCHEMA, ORGANIZATION_SCHEMA]} />
+      <JsonLd data={[createWebsiteSchema(), createOrganizationSchema()]} />
       <main>
         <LegalTopBar />
 

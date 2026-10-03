@@ -1,43 +1,52 @@
 import type { ProductDetail, ReviewItem } from "./types";
 import { getProductGalleryImages } from "./product-images";
 
-/**
- * Returns the canonical site base URL.
- * Prefers NEXT_PUBLIC_SITE_URL or SITE_URL environment variables,
- * falling back to production domain https://3d.irpsc.com.
- */
-export function getSiteUrl(): string {
-  let url =
-    process.env.NEXT_PUBLIC_SITE_URL?.trim() ||
-    process.env.SITE_URL?.trim() ||
-    (process.env.VERCEL_PROJECT_PRODUCTION_URL?.trim()
-      ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL.trim()}`
-      : "") ||
-    "https://3d.irpsc.com";
-
-  if (!/^https?:\/\//i.test(url)) {
-    url = `https://${url}`;
+function normalizeSiteUrl(url: string): string {
+  let value = url.trim();
+  if (!/^https?:\/\//i.test(value)) {
+    value = `https://${value}`;
   }
-
-  return url.replace(/\/+$/, "");
+  return value.replace(/\/+$/, "");
 }
 
-export const SITE_URL = getSiteUrl();
+/**
+ * Public site origin from the environment.
+ * Reads NEXT_PUBLIC_SITE_URL, SITE_URL, then FRONTEND_URL on every call.
+ */
+export function getSiteUrl(): string {
+  const configured =
+    process.env.NEXT_PUBLIC_SITE_URL?.trim() ||
+    process.env.SITE_URL?.trim() ||
+    process.env.FRONTEND_URL?.trim();
 
-export const ORGANIZATION_ID = `${SITE_URL}/#organization`;
-export const WEBSITE_ID = `${SITE_URL}/#website`;
+  if (!configured) {
+    throw new Error(
+      "Site URL is not configured. Set NEXT_PUBLIC_SITE_URL, SITE_URL, or FRONTEND_URL.",
+    );
+  }
+
+  return normalizeSiteUrl(configured);
+}
+
+export function organizationId(): string {
+  return `${getSiteUrl()}/#organization`;
+}
+
+export function websiteId(): string {
+  return `${getSiteUrl()}/#website`;
+}
 
 /**
  * Converts a relative path or absolute URL into a fully-qualified absolute URL
  * required by Google Search Console and Schema.org specifications.
  */
 export function absoluteUrl(path = ""): string {
-  if (!path) return SITE_URL;
+  if (!path) return getSiteUrl();
   if (/^https?:\/\//i.test(path)) {
     return path;
   }
   const cleanPath = path.startsWith("/") ? path : `/${path}`;
-  return `${SITE_URL}${cleanPath}`;
+  return `${getSiteUrl()}${cleanPath}`;
 }
 
 /**
@@ -53,7 +62,7 @@ export function publicAssetUrl(path: string): string {
       const parsed = new URL(trimmed);
       const storageAt = parsed.pathname.indexOf("/storage/");
       if (storageAt >= 0) {
-        return `${SITE_URL}${parsed.pathname.slice(storageAt)}${parsed.search}`;
+        return `${getSiteUrl()}${parsed.pathname.slice(storageAt)}${parsed.search}`;
       }
       return trimmed;
     } catch {
@@ -84,13 +93,15 @@ function toIsoDate(value: string | null | undefined): string | undefined {
 /**
  * Core Organization structured data for 3DMeta storefront.
  */
-export const ORGANIZATION_SCHEMA = {
+export function createOrganizationSchema() {
+  const siteUrl = getSiteUrl();
+  return {
   "@context": "https://schema.org",
   "@type": "Organization",
-  "@id": ORGANIZATION_ID,
+  "@id": organizationId(),
   name: "سه بعدی متا فروشگاه",
   alternateName: "3DMeta",
-  url: SITE_URL,
+  url: siteUrl,
   logo: {
     "@type": "ImageObject",
     url: absoluteUrl("/home-page/images/3d.png"),
@@ -140,33 +151,37 @@ export const ORGANIZATION_SCHEMA = {
     postalCode: "123456789",
     addressCountry: "IR",
   },
-};
+  };
+}
 
 /**
  * WebSite structured data with SearchAction for Google Sitelinks Searchbox.
  */
-export const WEBSITE_SCHEMA = {
+export function createWebsiteSchema() {
+  const siteUrl = getSiteUrl();
+  return {
   "@context": "https://schema.org",
   "@type": "WebSite",
-  "@id": WEBSITE_ID,
-  url: SITE_URL,
+  "@id": websiteId(),
+  url: siteUrl,
   name: "سه بعدی متا",
   alternateName: "3DMeta Shop",
   description:
     "مرکز عرضه جدیدترین مدل سه بعدی، آیکون، انیمیشن و فایل های طراحی با تعرفه ثابت",
   publisher: {
-    "@id": ORGANIZATION_ID,
+    "@id": organizationId(),
   },
   inLanguage: "fa-IR",
   potentialAction: {
     "@type": "SearchAction",
     target: {
       "@type": "EntryPoint",
-      urlTemplate: `${SITE_URL}/products?search={search_term_string}`,
+      urlTemplate: `${siteUrl}/products?search={search_term_string}`,
     },
     "query-input": "required name=search_term_string",
   },
-};
+  };
+}
 
 /**
  * Builds standard BreadcrumbList structured data with absolute URLs.
@@ -252,7 +267,7 @@ export function createProductSchema(
       seller: {
         "@type": "Organization",
         name: "سه بعدی متا فروشگاه",
-        url: SITE_URL,
+        url: getSiteUrl(),
       },
       hasMerchantReturnPolicy: {
         "@type": "MerchantReturnPolicy",
@@ -378,7 +393,7 @@ export function createCollectionPageSchema({
     description: plainText(description, title),
     inLanguage: "fa-IR",
     isPartOf: {
-      "@id": WEBSITE_ID,
+      "@id": websiteId(),
     },
     ...(imageUrl
       ? {

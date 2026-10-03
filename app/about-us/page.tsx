@@ -2,51 +2,53 @@ import type { Metadata } from "next";
 import { LegalTopBar } from "@/components/layout/LegalTopBar";
 import { JsonLd } from "@/components/seo/JsonLd";
 import {
-  ORGANIZATION_ID,
-  ORGANIZATION_SCHEMA,
-  WEBSITE_ID,
+  createOrganizationSchema,
+  organizationId,
+  websiteId,
   absoluteUrl,
   createBreadcrumbSchema,
 } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: { absolute: "درباره سه بعدی متا" },
-  description:
-    "آشنایی با فروشگاه سه بعدی متا، اهداف، تیم طراحی و خدمات حرفه‌ای در حوزه مدل‌های سه بعدی و آواتار دیجیتال",
-  alternates: {
-    canonical: absoluteUrl("/about-us"),
-  },
-  openGraph: {
-    title: "درباره سه بعدی متا",
+export function generateMetadata(): Metadata {
+  return {
+    title: { absolute: "درباره سه بعدی متا" },
     description:
       "آشنایی با فروشگاه سه بعدی متا، اهداف، تیم طراحی و خدمات حرفه‌ای در حوزه مدل‌های سه بعدی و آواتار دیجیتال",
-    url: absoluteUrl("/about-us"),
-  },
-};
-
-const aboutPageSchema = {
-  "@context": "https://schema.org",
-  "@type": "AboutPage",
-  "@id": absoluteUrl("/about-us"),
-  name: "درباره سه بعدی متا",
-  url: absoluteUrl("/about-us"),
-  inLanguage: "fa-IR",
-  isPartOf: { "@id": WEBSITE_ID },
-  description:
-    "در سه بعدی متا، ما به دنیایی وارد می‌شویم که هنر و تکنولوژی به آغوش هم می‌رقصند. فروشگاه سه بعدی متا با هدف ارائه بهترین مدل‌های سه بعدی و آواتار با بهترین ویژگی‌ها و جزئیات، برای علاقه‌مندان به دنیای گرافیک دیجیتال و طراحی سه بعدی ایجاد شده است.",
-  about: { "@id": ORGANIZATION_ID },
-  mainEntity: { "@id": ORGANIZATION_ID },
-};
-
-const breadcrumbSchema = createBreadcrumbSchema([
-  { name: "خانه", url: "/" },
-  { name: "درباره ما", url: "/about-us" },
-]);
+    alternates: {
+      canonical: absoluteUrl("/about-us"),
+    },
+    openGraph: {
+      title: "درباره سه بعدی متا",
+      description:
+        "آشنایی با فروشگاه سه بعدی متا، اهداف، تیم طراحی و خدمات حرفه‌ای در حوزه مدل‌های سه بعدی و آواتار دیجیتال",
+      url: absoluteUrl("/about-us"),
+    },
+  };
+}
 
 export default function AboutUsPage() {
+  const aboutPageSchema = {
+    "@context": "https://schema.org",
+    "@type": "AboutPage",
+    "@id": absoluteUrl("/about-us"),
+    name: "درباره سه بعدی متا",
+    url: absoluteUrl("/about-us"),
+    inLanguage: "fa-IR",
+    isPartOf: { "@id": websiteId() },
+    description:
+      "در سه بعدی متا، ما به دنیایی وارد می‌شویم که هنر و تکنولوژی به آغوش هم می‌رقصند. فروشگاه سه بعدی متا با هدف ارائه بهترین مدل‌های سه بعدی و آواتار با بهترین ویژگی‌ها و جزئیات، برای علاقه‌مندان به دنیای گرافیک دیجیتال و طراحی سه بعدی ایجاد شده است.",
+    about: { "@id": organizationId() },
+    mainEntity: { "@id": organizationId() },
+  };
+
+  const breadcrumbSchema = createBreadcrumbSchema([
+    { name: "خانه", url: "/" },
+    { name: "درباره ما", url: "/about-us" },
+  ]);
+
   return (
     <div>
-      <JsonLd data={[aboutPageSchema, ORGANIZATION_SCHEMA, breadcrumbSchema]} />
+      <JsonLd data={[aboutPageSchema, createOrganizationSchema(), breadcrumbSchema]} />
       <main>
         <LegalTopBar />
         <section className="mx-auto mt-24 max-w-[1500px] p-4 lg:mt-14 lg:p-9">

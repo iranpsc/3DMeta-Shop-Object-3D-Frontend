@@ -16,6 +16,9 @@ services:
       args:
         NODE_VERSION: ${NODE_VERSION:-20}
         NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8000}
+        NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-${FRONTEND_URL:-http://localhost:3000}}
+        SITE_URL: ${SITE_URL:-${FRONTEND_URL:-http://localhost:3000}}
+        FRONTEND_URL: ${FRONTEND_URL:-http://localhost:3000}
     image: ${IMAGE_NAME:-3drgb-frontend}:${IMAGE_TAG:-dev}
     ports:
       - "${HOST_PORT:-3000}:3000"
@@ -24,6 +27,9 @@ services:
       PORT: "3000"
       HOSTNAME: "0.0.0.0"
       NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8000}
+      NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-${FRONTEND_URL:-http://localhost:3000}}
+      SITE_URL: ${SITE_URL:-${FRONTEND_URL:-http://localhost:3000}}
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:3000}
       API_INTERNAL_URL: ${API_INTERNAL_URL:-http://3drgb-api}
       WATCHPACK_POLLING: ${WATCHPACK_POLLING:-"true"}
       CHOKIDAR_USEPOLLING: ${CHOKIDAR_USEPOLLING:-"true"}
