@@ -33,13 +33,13 @@ export async function generateMetadata({
     const image = category.image?.url ? absoluteUrl(category.image.url) : undefined;
 
     return {
-      title: `${category.name} - دسته بندی محصولات`,
+      title: `مدل های سه بعدی ${category.name}`,
       description: category.description ?? undefined,
       alternates: {
-        canonical: categoryUrl,
+        canonical: absoluteUrl(categoryUrl),
       },
       openGraph: {
-        title: category.name,
+        title: `مدل های سه بعدی ${category.name}`,
         description: category.description ?? undefined,
         url: absoluteUrl(categoryUrl),
         images: image ? [image] : undefined,
@@ -87,16 +87,25 @@ export default async function CategoryShowPage({ params }: { params: Params }) {
 
   const categoryUrl = `/categories/${slugPath}`;
   const collectionSchema = createCollectionPageSchema({
-    title: `دسته بندی ${category.name}`,
+    title: `مدل های سه بعدی ${category.name}`,
     description: category.description ?? undefined,
     url: categoryUrl,
+    image: category.image?.url,
   });
 
   const breadcrumbSchema = createBreadcrumbSchema(
-    crumbs.map((c) => ({
-      name: c.label,
-      url: c.href,
-    }))
+    crumbs.map((crumb, index) => {
+      const isLast = index === crumbs.length - 1;
+      const parent = category.parent;
+      const isParent =
+        index > 0 &&
+        index === crumbs.length - 2 &&
+        parent?.slug === slug[index - 1];
+      return {
+        name: isParent && parent ? parent.name : crumb.label,
+        url: crumb.href ?? (isLast ? categoryUrl : undefined),
+      };
+    }),
   );
 
   return (

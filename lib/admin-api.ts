@@ -171,6 +171,17 @@ export async function createAdminAttribute(payload: {
   return { attribute: res.data, message: res.message ?? undefined };
 }
 
+export async function updateAdminAttribute(
+  attributeId: number,
+  payload: { name: string; slug: string },
+): Promise<{ attribute: AdminAttribute; message?: string }> {
+  const res = await apiFetch<AdminAttribute>(`/api/v1/admin/attributes/${attributeId}`, {
+    method: "PUT",
+    body: JSON.stringify(payload),
+  });
+  return { attribute: res.data, message: res.message ?? undefined };
+}
+
 export async function deleteAdminAttribute(attributeId: number): Promise<string | undefined> {
   const res = await apiFetch<null>(`/api/v1/admin/attributes/${attributeId}`, { method: "DELETE" });
   return res.message ?? undefined;

@@ -30,13 +30,13 @@ export async function generateMetadata({
     const data = await fetchTagProducts(slug);
     const tagUrl = `/tags/${slug}`;
     return {
-      title: `${data.tag.name} - محصولات با برچسب`,
+      title: `مدل های سه بعدی ${data.tag.name}`,
       description: `خرید و دانلود انواع مدل‌های سه بعدی با برچسب ${data.tag.name}`,
       alternates: {
-        canonical: tagUrl,
+        canonical: absoluteUrl(tagUrl),
       },
       openGraph: {
-        title: `برچسب ${data.tag.name}`,
+        title: `مدل های سه بعدی ${data.tag.name}`,
         description: `خرید و دانلود انواع مدل‌های سه بعدی با برچسب ${data.tag.name}`,
         url: absoluteUrl(tagUrl),
       },
@@ -73,7 +73,7 @@ export default async function TagPage({
   const tagUrl = `/tags/${slug}`;
 
   const collectionSchema = createCollectionPageSchema({
-    title: `محصولات با برچسب ${data.tag.name}`,
+    title: `مدل های سه بعدی ${data.tag.name}`,
     description: `خرید و دانلود انواع مدل‌های سه بعدی با برچسب ${data.tag.name}`,
     url: tagUrl,
   });

@@ -21,7 +21,7 @@ export const metadata: Metadata = {
     "مرکز عرضه جدیدترین مدل سه بعدی، آیکون، انیمیشن و فایل های طراحی با تعرفه ثابت",
   keywords: "مدل سه بعدی, فروشگاه مدل سه بعدی, انیمیشن سه بعدی, آیکون, طراحی سه بعدی",
   alternates: {
-    canonical: "/",
+    canonical: absoluteUrl("/"),
   },
   openGraph: {
     title: "سه بعدی متا",

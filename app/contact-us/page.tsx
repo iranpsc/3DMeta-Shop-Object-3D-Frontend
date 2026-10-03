@@ -3,20 +3,22 @@ import { ContactForm } from "@/components/contact/ContactForm";
 import { LegalTopBar } from "@/components/layout/LegalTopBar";
 import { JsonLd } from "@/components/seo/JsonLd";
 import {
+  ORGANIZATION_ID,
   ORGANIZATION_SCHEMA,
+  WEBSITE_ID,
   absoluteUrl,
   createBreadcrumbSchema,
 } from "@/lib/seo";
 
 export const metadata: Metadata = {
-  title: "تماس با ما",
+  title: { absolute: "ارتباط با سه بعدی متا" },
   description:
     "راه‌های ارتباطی با فروشگاه سه بعدی متا، پشتیبانی تلفنی، ایمیل و ثبت پیام مستقیم",
   alternates: {
-    canonical: "/contact-us",
+    canonical: absoluteUrl("/contact-us"),
   },
   openGraph: {
-    title: "تماس با ما | سه بعدی متا",
+    title: "ارتباط با سه بعدی متا",
     description:
       "راه‌های ارتباطی با فروشگاه سه بعدی متا، پشتیبانی تلفنی، ایمیل و ثبت پیام مستقیم",
     url: absoluteUrl("/contact-us"),
@@ -27,11 +29,14 @@ const contactPageSchema = {
   "@context": "https://schema.org",
   "@type": "ContactPage",
   "@id": absoluteUrl("/contact-us"),
-  name: "تماس با ما - سه بعدی متا فروشگاه",
+  name: "ارتباط با سه بعدی متا",
   url: absoluteUrl("/contact-us"),
+  inLanguage: "fa-IR",
+  isPartOf: { "@id": WEBSITE_ID },
   description:
     "راه‌های ارتباطی با فروشگاه سه بعدی متا، پشتیبانی تلفنی، ایمیل و ثبت پیام مستقیم",
-  mainEntity: ORGANIZATION_SCHEMA,
+  about: { "@id": ORGANIZATION_ID },
+  mainEntity: { "@id": ORGANIZATION_ID },
 };
 
 const breadcrumbSchema = createBreadcrumbSchema([
@@ -42,7 +47,7 @@ const breadcrumbSchema = createBreadcrumbSchema([
 export default function ContactUsPage() {
   return (
     <div>
-      <JsonLd data={[contactPageSchema, breadcrumbSchema]} />
+      <JsonLd data={[contactPageSchema, ORGANIZATION_SCHEMA, breadcrumbSchema]} />
       <main>
         <LegalTopBar />
         <section className="mx-auto mt-24 max-w-[1500px] p-4 lg:mt-14 lg:p-9">

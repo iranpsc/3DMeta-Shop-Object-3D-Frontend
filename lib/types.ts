@@ -61,6 +61,7 @@ export type ProductCard = {
 export type ProductDetail = ProductCard & {
   short_description?: string | null;
   long_description?: string | null;
+  meta_description?: string | null;
   stock_status?: boolean;
   quantity?: number;
   customer_can_add_review?: boolean;

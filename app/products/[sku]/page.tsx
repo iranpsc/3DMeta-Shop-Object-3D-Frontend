@@ -10,6 +10,7 @@ import {
   absoluteUrl,
   createBreadcrumbSchema,
   createProductSchema,
+  publicAssetUrl,
 } from "@/lib/seo";
 import { fetchProduct, fetchProductReviews } from "@/lib/storefront-server-api";
 
@@ -25,20 +26,22 @@ export async function generateMetadata({
     const product = await fetchProduct(sku);
     const productUrl = absoluteUrl(`/products/${product.sku}`);
     const firstImage = product.images?.[0]?.url
-      ? absoluteUrl(product.images[0].url)
+      ? publicAssetUrl(product.images[0].url)
       : product.image?.url
-        ? absoluteUrl(product.image.url)
+        ? publicAssetUrl(product.image.url)
         : undefined;
 
     return {
-      title: `${product.name} - ${product.sku} - فروشگاه آنلاین`,
-      description: product.short_description || undefined,
+      title: {
+        absolute: `${product.name} - ${product.sku} - سه بعدی متا`,
+      },
+      description: product.meta_description?.trim() || undefined,
       alternates: {
-        canonical: `/products/${product.sku}`,
+        canonical: productUrl,
       },
       openGraph: {
         title: product.name,
-        description: product.short_description || undefined,
+        description: product.meta_description?.trim() || undefined,
         images: firstImage ? [firstImage] : undefined,
         type: "website",
         url: productUrl,
@@ -74,7 +77,7 @@ export default async function ProductDetailsPage({ params }: { params: Params })
   if (product.category?.name) {
     breadcrumbItems.push({
       name: product.category.name,
-      url: `/categories/${product.category.slug}`,
+      url: product.category.url || `/categories/${product.category.slug}`,
     });
   }
   breadcrumbItems.push({

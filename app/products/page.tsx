@@ -21,14 +21,14 @@ import { serverApiFetch } from "@/lib/server-api";
 import type { PaginationMeta, ProductCard as ProductType } from "@/lib/types";
 
 export const metadata: Metadata = {
-  title: "محصولات سه بعدی - فروشگاه مدل و آبجکت سه بعدی",
+  title: { absolute: "محصولات سه بعدی متا" },
   description:
     "مشاهده و دانلود انواع مدل‌های سه بعدی، کاراکتر، آبجکت معماری، انیمیشن و فایل‌های طراحی",
   alternates: {
-    canonical: "/products",
+    canonical: absoluteUrl("/products"),
   },
   openGraph: {
-    title: "محصولات سه بعدی | سه بعدی متا",
+    title: "محصولات سه بعدی متا",
     description:
       "مشاهده و دانلود انواع مدل‌های سه بعدی، کاراکتر، آبجکت معماری، انیمیشن و فایل‌های طراحی",
     url: absoluteUrl("/products"),
@@ -90,7 +90,7 @@ export default async function ProductsPage({
   }
 
   const collectionSchema = createCollectionPageSchema({
-    title: "محصولات سه بعدی",
+    title: "محصولات سه بعدی متا",
     description:
       "مشاهده و دانلود انواع مدل‌های سه بعدی، کاراکتر، آبجکت معماری، انیمیشن و فایل‌های طراحی",
     url: "/products",

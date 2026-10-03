@@ -4,7 +4,7 @@ import { getProductGalleryImages } from "./product-images";
 /**
  * Returns the canonical site base URL.
  * Prefers NEXT_PUBLIC_SITE_URL or SITE_URL environment variables,
- * falling back to production domain https://3dmeta.ir.
+ * falling back to production domain https://3d.irpsc.com.
  */
 export function getSiteUrl(): string {
   let url =
@@ -13,7 +13,7 @@ export function getSiteUrl(): string {
     (process.env.VERCEL_PROJECT_PRODUCTION_URL?.trim()
       ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL.trim()}`
       : "") ||
-    "https://3dmeta.ir";
+    "https://3d.irpsc.com";
 
   if (!/^https?:\/\//i.test(url)) {
     url = `https://${url}`;
@@ -23,6 +23,9 @@ export function getSiteUrl(): string {
 }
 
 export const SITE_URL = getSiteUrl();
+
+export const ORGANIZATION_ID = `${SITE_URL}/#organization`;
+export const WEBSITE_ID = `${SITE_URL}/#website`;
 
 /**
  * Converts a relative path or absolute URL into a fully-qualified absolute URL
@@ -38,18 +41,62 @@ export function absoluteUrl(path = ""): string {
 }
 
 /**
+ * Rewrites storage files onto the public site origin.
+ * API responses often use an internal host such as http://3drgb-api, which
+ * Googlebot cannot crawl.
+ */
+export function publicAssetUrl(path: string): string {
+  const trimmed = path.trim();
+  if (!trimmed) return "";
+  if (/^https?:\/\//i.test(trimmed)) {
+    try {
+      const parsed = new URL(trimmed);
+      const storageAt = parsed.pathname.indexOf("/storage/");
+      if (storageAt >= 0) {
+        return `${SITE_URL}${parsed.pathname.slice(storageAt)}${parsed.search}`;
+      }
+      return trimmed;
+    } catch {
+      return absoluteUrl(trimmed);
+    }
+  }
+  return absoluteUrl(trimmed);
+}
+
+function plainText(value: string | null | undefined, fallback = ""): string {
+  if (!value) return fallback;
+  const text = value
+    .replace(/<[^>]*>/g, " ")
+    .replace(/&nbsp;/gi, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+  return text || fallback;
+}
+
+function toIsoDate(value: string | null | undefined): string | undefined {
+  if (!value) return undefined;
+  const normalized = value.includes("T") ? value : value.replace(" ", "T");
+  const date = new Date(normalized);
+  if (Number.isNaN(date.getTime())) return undefined;
+  return date.toISOString().slice(0, 10);
+}
+
+/**
  * Core Organization structured data for 3DMeta storefront.
  */
 export const ORGANIZATION_SCHEMA = {
   "@context": "https://schema.org",
   "@type": "Organization",
-  "@id": `${SITE_URL}/#organization`,
+  "@id": ORGANIZATION_ID,
   name: "سه بعدی متا فروشگاه",
   alternateName: "3DMeta",
   url: SITE_URL,
   logo: {
     "@type": "ImageObject",
     url: absoluteUrl("/home-page/images/3d.png"),
+    contentUrl: absoluteUrl("/home-page/images/3d.png"),
+    width: 512,
+    height: 512,
     caption: "سه بعدی متا",
   },
   image: absoluteUrl("/home-page/images/Asset2.png"),
@@ -101,14 +148,14 @@ export const ORGANIZATION_SCHEMA = {
 export const WEBSITE_SCHEMA = {
   "@context": "https://schema.org",
   "@type": "WebSite",
-  "@id": `${SITE_URL}/#website`,
+  "@id": WEBSITE_ID,
   url: SITE_URL,
   name: "سه بعدی متا",
   alternateName: "3DMeta Shop",
   description:
     "مرکز عرضه جدیدترین مدل سه بعدی، آیکون، انیمیشن و فایل های طراحی با تعرفه ثابت",
   publisher: {
-    "@id": `${SITE_URL}/#organization`,
+    "@id": ORGANIZATION_ID,
   },
   inLanguage: "fa-IR",
   potentialAction: {
@@ -127,10 +174,14 @@ export const WEBSITE_SCHEMA = {
 export function createBreadcrumbSchema(
   items: Array<{ name: string; url?: string }>
 ) {
+  const list = items
+    .map((item) => ({ name: item.name.trim(), url: item.url?.trim() }))
+    .filter((item) => item.name.length > 0);
+
   return {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
-    itemListElement: items.map((item, index) => ({
+    itemListElement: list.map((item, index) => ({
       "@type": "ListItem",
       position: index + 1,
       name: item.name,
@@ -152,36 +203,48 @@ export function createProductSchema(
 ) {
   const productUrl = absoluteUrl(`/products/${product.sku}`);
 
-  // Resolve images to absolute URLs
   const galleryImages = getProductGalleryImages(product);
   const images = (
     galleryImages.length > 0
-      ? galleryImages.map((img) => absoluteUrl(img.url))
+      ? galleryImages.map((img) => publicAssetUrl(img.url))
       : product.image?.url
-        ? [absoluteUrl(product.image.url)]
+        ? [publicAssetUrl(product.image.url)]
         : [absoluteUrl("/home-page/images/default-product.jpg")]
-  ).filter(Boolean);
+  ).filter((url) => url.startsWith("https://") || url.startsWith("http://"));
+  const productImages =
+    images.length > 0
+      ? images
+      : [absoluteUrl("/home-page/images/default-product.jpg")];
 
-  const price = Number(product.final_price ?? product.price ?? 0);
+  const rawPrice = Number(product.final_price ?? product.price ?? 0);
+  const price = Number.isFinite(rawPrice) && rawPrice >= 0 ? rawPrice : 0;
+  const priceText = Number.isInteger(price) ? String(price) : price.toFixed(2);
   const isInStock = product.stock_status !== false;
+  const validUntil = new Date();
+  validUntil.setFullYear(validUntil.getFullYear() + 1);
 
   const schema: Record<string, unknown> = {
     "@context": "https://schema.org",
     "@type": "Product",
     "@id": productUrl,
     name: product.name,
-    description:
-      product.short_description ||
-      product.name ||
-      "مدل سه بعدی با کیفیت بالا در فروشگاه سه بعدی متا",
+    description: plainText(
+      product.meta_description || product.short_description,
+      product.name || "مدل سه بعدی با کیفیت بالا در فروشگاه سه بعدی متا",
+    ),
     sku: product.sku,
     url: productUrl,
-    image: images,
+    image: productImages,
+    brand: {
+      "@type": "Brand",
+      name: "سه بعدی متا",
+    },
     offers: {
       "@type": "Offer",
       url: productUrl,
       priceCurrency: "IRR",
-      price: price,
+      price: priceText,
+      priceValidUntil: validUntil.toISOString().slice(0, 10),
       availability: isInStock
         ? "https://schema.org/InStock"
         : "https://schema.org/OutOfStock",
@@ -191,6 +254,38 @@ export function createProductSchema(
         name: "سه بعدی متا فروشگاه",
         url: SITE_URL,
       },
+      hasMerchantReturnPolicy: {
+        "@type": "MerchantReturnPolicy",
+        applicableCountry: "IR",
+        returnPolicyCategory: "https://schema.org/MerchantReturnNotPermitted",
+      },
+      shippingDetails: {
+        "@type": "OfferShippingDetails",
+        shippingRate: {
+          "@type": "MonetaryAmount",
+          value: 0,
+          currency: "IRR",
+        },
+        shippingDestination: {
+          "@type": "DefinedRegion",
+          addressCountry: "IR",
+        },
+        deliveryTime: {
+          "@type": "ShippingDeliveryTime",
+          handlingTime: {
+            "@type": "QuantitativeValue",
+            minValue: 0,
+            maxValue: 1,
+            unitCode: "DAY",
+          },
+          transitTime: {
+            "@type": "QuantitativeValue",
+            minValue: 0,
+            maxValue: 1,
+            unitCode: "DAY",
+          },
+        },
+      },
     },
   };
 
@@ -199,40 +294,59 @@ export function createProductSchema(
   }
 
   // Google Rich Results requires valid ratingValue and reviewCount > 0
-  const reviewCount =
+  const reviewCount = Number(
     product.approved_reviews_count ||
-    product.reviews_count ||
-    reviewsData?.users_count ||
-    reviewsData?.reviews?.length ||
-    0;
+      product.reviews_count ||
+      reviewsData?.users_count ||
+      reviewsData?.reviews?.length ||
+      0,
+  );
   const ratingValue = Number(product.rating_avg || 0);
 
-  if (reviewCount > 0 && ratingValue > 0) {
+  if (
+    Number.isInteger(reviewCount) &&
+    reviewCount > 0 &&
+    ratingValue >= 1 &&
+    ratingValue <= 5
+  ) {
     schema.aggregateRating = {
       "@type": "AggregateRating",
       ratingValue: Number(ratingValue.toFixed(1)),
-      reviewCount: reviewCount,
+      reviewCount,
       bestRating: 5,
       worstRating: 1,
     };
   }
 
-  if (reviewsData?.reviews && reviewsData.reviews.length > 0) {
-    schema.review = reviewsData.reviews.slice(0, 5).map((rev) => ({
-      "@type": "Review",
-      reviewRating: {
-        "@type": "Rating",
-        ratingValue: rev.rating,
-        bestRating: 5,
-        worstRating: 1,
-      },
-      author: {
-        "@type": "Person",
-        name: rev.user?.name || "کاربر سه بعدی متا",
-      },
-      reviewBody: rev.comment,
-      datePublished: rev.created_at,
-    }));
+  const reviews = (reviewsData?.reviews ?? [])
+    .map((rev) => {
+      const rating = Number(rev.rating);
+      const reviewBody = plainText(rev.comment);
+      const datePublished = toIsoDate(rev.created_at);
+      if (!reviewBody || !Number.isFinite(rating) || rating < 1 || rating > 5) {
+        return null;
+      }
+      return {
+        "@type": "Review",
+        reviewRating: {
+          "@type": "Rating",
+          ratingValue: rating,
+          bestRating: 5,
+          worstRating: 1,
+        },
+        author: {
+          "@type": "Person",
+          name: rev.user?.name?.trim() || "کاربر سه بعدی متا",
+        },
+        reviewBody,
+        ...(datePublished ? { datePublished } : {}),
+      };
+    })
+    .filter((review) => review !== null)
+    .slice(0, 5);
+
+  if (reviews.length > 0) {
+    schema.review = reviews;
   }
 
   return schema;
@@ -245,20 +359,35 @@ export function createCollectionPageSchema({
   title,
   description,
   url,
+  image,
 }: {
   title: string;
   description?: string;
   url: string;
+  image?: string | null;
 }) {
+  const pageUrl = absoluteUrl(url);
+  const imageUrl = image ? publicAssetUrl(image) : "";
+
   return {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
-    "@id": absoluteUrl(url),
-    url: absoluteUrl(url),
+    "@id": pageUrl,
+    url: pageUrl,
     name: title,
-    description: description || title,
+    description: plainText(description, title),
+    inLanguage: "fa-IR",
     isPartOf: {
-      "@id": `${SITE_URL}/#website`,
+      "@id": WEBSITE_ID,
     },
+    ...(imageUrl
+      ? {
+          image: imageUrl,
+          primaryImageOfPage: {
+            "@type": "ImageObject",
+            url: imageUrl,
+          },
+        }
+      : {}),
   };
 }

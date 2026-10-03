@@ -21,7 +21,7 @@ export const metadata: Metadata = {
   description:
     "دسته‌بندی‌های تخصصی انواع مدل‌های سه بعدی، انیمیشن، آیکون و فایل‌های طراحی",
   alternates: {
-    canonical: "/categories",
+    canonical: absoluteUrl("/categories"),
   },
   openGraph: {
     title: "دسته‌بندی‌های محصولات | سه بعدی متا",
