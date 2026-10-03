@@ -6,9 +6,9 @@ services:
       args:
         NODE_VERSION: ${NODE_VERSION:-20}
         NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8000}
-        NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-}
-        SITE_URL: ${SITE_URL:-}
-        FRONTEND_URL: ${FRONTEND_URL:-}
+        NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-${FRONTEND_URL:-http://localhost:3000}}
+        SITE_URL: ${SITE_URL:-${FRONTEND_URL:-http://localhost:3000}}
+        FRONTEND_URL: ${FRONTEND_URL:-http://localhost:3000}
     image: ${IMAGE_NAME:-3drgb-frontend}:${IMAGE_TAG:-latest}
     restart: unless-stopped
     expose:
@@ -19,9 +19,9 @@ services:
       HOSTNAME: "0.0.0.0"
       # Runtime fallback for server-side fetches (client bundle already baked at build).
       NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8000}
-      NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-}
-      SITE_URL: ${SITE_URL:-}
-      FRONTEND_URL: ${FRONTEND_URL:-}
+      NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-${FRONTEND_URL:-http://localhost:3000}}
+      SITE_URL: ${SITE_URL:-${FRONTEND_URL:-http://localhost:3000}}
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:3000}
       # SSR inside Docker: reach API via compose service name, not localhost.
       API_INTERNAL_URL: ${API_INTERNAL_URL:-http://3drgb-api}
     healthcheck:

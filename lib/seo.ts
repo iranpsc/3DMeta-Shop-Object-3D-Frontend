@@ -9,9 +9,16 @@ function normalizeSiteUrl(url: string): string {
   return value.replace(/\/+$/, "");
 }
 
+/** Used when no site URL is set, including `next build` page-data collection. */
+const DEFAULT_SITE_URL = "http://localhost:3000";
+
+let missingSiteUrlWarned = false;
+
 /**
  * Public site origin from the environment.
  * Reads NEXT_PUBLIC_SITE_URL, SITE_URL, then FRONTEND_URL on every call.
+ * Falls back to localhost so production image builds can collect page data
+ * when those variables are not passed in.
  */
 export function getSiteUrl(): string {
   const configured =
@@ -20,9 +27,13 @@ export function getSiteUrl(): string {
     process.env.FRONTEND_URL?.trim();
 
   if (!configured) {
-    throw new Error(
-      "Site URL is not configured. Set NEXT_PUBLIC_SITE_URL, SITE_URL, or FRONTEND_URL.",
-    );
+    if (!missingSiteUrlWarned && process.env.NODE_ENV === "production") {
+      missingSiteUrlWarned = true;
+      console.warn(
+        "Site URL is not configured. Set NEXT_PUBLIC_SITE_URL, SITE_URL, or FRONTEND_URL. Using http://localhost:3000.",
+      );
+    }
+    return DEFAULT_SITE_URL;
   }
 
   return normalizeSiteUrl(configured);
