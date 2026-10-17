@@ -1,14 +1,17 @@
 "use client";
 
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import Script from "next/script";
 import { Button } from "@/components/ui/button";
-import { showWarningToast } from "@/components/ui/toast";
+import { confirmDialog } from "@/components/ui/confirm-dialog";
+import { showErrorToast, showSuccessToast, showWarningToast } from "@/components/ui/toast";
 import { ProductFileUpload } from "@/components/admin/ProductFileUpload";
 import { FormTextInput } from "@/components/form/text-input";
 import { FormTextarea } from "@/components/form/textarea";
 import { formControlClassName } from "@/components/form/form-control-classes";
-import type { AdminProduct, AdminProductFormData, CategorySummary, ChunkUploadedFile } from "@/lib/types";
+import { deleteAdminProductFile, deleteAdminProductImage } from "@/lib/admin-api";
+import { unwrapImages } from "@/lib/product-images";
+import type { AdminProduct, AdminProductFormData, CategorySummary, ChunkUploadedFile, ProductImage } from "@/lib/types";
 
 type ProductFormProps = {
   formData: AdminProductFormData;
@@ -16,6 +19,7 @@ type ProductFormProps = {
   onSubmit: (form: FormData) => void;
   pending?: boolean;
   submitLabel: string;
+  footer?: ReactNode;
 };
 
 function stripHtmlToPlainText(html: string): string {
@@ -31,7 +35,53 @@ function chunkPairs<T>(items: T[]): T[][] {
   return pairs;
 }
 
+type ProductFileItem = NonNullable<AdminProduct["files"]>[number];
+
 type CategorySelectOption = { id: number; label: string };
+
+function ExistingMediaRow({
+  label,
+  previewUrl,
+  viewUrl,
+  deleting,
+  onDelete,
+}: {
+  label: string;
+  previewUrl?: string | null;
+  viewUrl?: string | null;
+  deleting: boolean;
+  onDelete: () => void;
+}) {
+  return (
+    <div
+      dir="ltr"
+      className="flex items-center justify-between gap-3 rounded-[10px] bg-[#F8F9FA] p-3 dark:bg-[#4A4E7C]"
+    >
+      <Button type="button" variant="danger" size="sm" disabled={deleting} onClick={onDelete}>
+        حذف
+      </Button>
+      <div dir="rtl" className="flex min-w-0 flex-1 items-center justify-center gap-3">
+        {previewUrl ? (
+          <img src={previewUrl} alt={label} className="h-14 w-14 rounded object-cover" />
+        ) : (
+          <span className="truncate text-sm">{label}</span>
+        )}
+      </div>
+      {viewUrl ? (
+        <a
+          href={viewUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="shrink-0 text-sm font-bold text-blue-600"
+        >
+          مشاهده
+        </a>
+      ) : (
+        <span className="shrink-0 text-sm text-gray-400">مشاهده</span>
+      )}
+    </div>
+  );
+}
 
 function buildCategorySelectOptions(categories: CategorySummary[]): CategorySelectOption[] {
   const parentCategories = categories.filter((category) => !category.parent);
@@ -86,13 +136,16 @@ function initSelect2(
   };
 }
 
-export function ProductForm({ formData, initial, onSubmit, pending = false, submitLabel }: ProductFormProps) {
+export function ProductForm({ formData, initial, onSubmit, pending = false, submitLabel, footer }: ProductFormProps) {
   const initialTags = initial?.tags?.map((tag) => String(tag.id)) ?? [];
   const attributeValues = Object.fromEntries(
     (initial?.attributes ?? []).map((attr) => [String(attr.id), attr.value ?? ""]),
   );
 
   const [uploadedFiles, setUploadedFiles] = useState<ChunkUploadedFile[]>([]);
+  const [currentImages, setCurrentImages] = useState<ProductImage[]>(() => unwrapImages(initial?.images));
+  const [currentFiles, setCurrentFiles] = useState<ProductFileItem[]>(() => initial?.files ?? []);
+  const [deletingKey, setDeletingKey] = useState<string | null>(null);
   const [longDescription, setLongDescription] = useState(initial?.long_description ?? "");
   const [jqueryReady, setJqueryReady] = useState(false);
   const [select2Ready, setSelect2Ready] = useState(false);
@@ -106,10 +159,65 @@ export function ProductForm({ formData, initial, onSubmit, pending = false, subm
   const summernoteRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    setCurrentImages(unwrapImages(initial?.images));
+    setCurrentFiles(initial?.files ?? []);
+  }, [initial]);
+
+  useEffect(() => {
     if (typeof window !== "undefined" && window.jQuery) {
       setJqueryReady(true);
     }
   }, []);
+
+  async function handleDeleteImage(image: ProductImage) {
+    if (!initial || deletingKey) {
+      return;
+    }
+
+    const confirmed = await confirmDialog({
+      message: "آیا از حذف این تصویر مطمئن هستید؟",
+    });
+    if (!confirmed) {
+      return;
+    }
+
+    const key = `image-${image.id}`;
+    setDeletingKey(key);
+    try {
+      const updated = await deleteAdminProductImage(initial.id, image.id);
+      setCurrentImages(unwrapImages(updated.images));
+      showSuccessToast("تصویر حذف شد.");
+    } catch {
+      showErrorToast("حذف تصویر با خطا مواجه شد.");
+    } finally {
+      setDeletingKey(null);
+    }
+  }
+
+  async function handleDeleteFile(file: ProductFileItem) {
+    if (!initial || deletingKey) {
+      return;
+    }
+
+    const confirmed = await confirmDialog({
+      message: "آیا از حذف این فایل مطمئن هستید؟",
+    });
+    if (!confirmed) {
+      return;
+    }
+
+    const key = `file-${file.id}`;
+    setDeletingKey(key);
+    try {
+      const updated = await deleteAdminProductFile(initial.id, file.id);
+      setCurrentFiles(updated.files ?? []);
+      showSuccessToast("فایل حذف شد.");
+    } catch {
+      showErrorToast("حذف فایل با خطا مواجه شد.");
+    } finally {
+      setDeletingKey(null);
+    }
+  }
 
   useEffect(() => {
     if (!jqueryReady || !select2Ready || !window.jQuery?.fn.select2) {
@@ -346,24 +454,59 @@ export function ProductForm({ formData, initial, onSubmit, pending = false, subm
           defaultValue={initial?.sale_price ?? 0}
         />
 
-        <label className="flex flex-col gap-3">
-          <span className="form-col-label col-sm-4">تصاویر {initial ? "(اختیاری)" : ""}</span>
-          <input
-            name="images[]"
-            type="file"
-            accept="image/*"
-            multiple
-            className={formControlClassName}
-            {...(initial ? {} : { required: true })}
-          />
-        </label>
+        <div className="flex flex-col gap-3">
+          <label className="flex flex-col gap-3">
+            <span className="form-col-label col-sm-4">تصاویر {initial ? "(اختیاری)" : ""}</span>
+            <input
+              name="images[]"
+              type="file"
+              accept="image/*"
+              multiple
+              className={formControlClassName}
+              {...(initial ? {} : { required: true })}
+            />
+          </label>
+          {currentImages.length > 0 ? (
+            <div className="flex flex-col gap-2">
+              {currentImages.map((image) => (
+                <ExistingMediaRow
+                  key={image.id}
+                  label="تصویر محصول"
+                  previewUrl={image.url}
+                  viewUrl={image.url}
+                  deleting={deletingKey === `image-${image.id}`}
+                  onDelete={() => {
+                    void handleDeleteImage(image);
+                  }}
+                />
+              ))}
+            </div>
+          ) : null}
+        </div>
 
-        <ProductFileUpload
-          label="فایل‌ها"
-          value={uploadedFiles}
-          onChange={setUploadedFiles}
-          required={!initial}
-        />
+        <div className="flex flex-col gap-3">
+          <ProductFileUpload
+            label="فایل‌ها"
+            value={uploadedFiles}
+            onChange={setUploadedFiles}
+            required={!initial}
+          />
+          {currentFiles.length > 0 ? (
+            <div className="flex flex-col gap-2">
+              {currentFiles.map((file) => (
+                <ExistingMediaRow
+                  key={file.id}
+                  label={file.name || "فایل محصول"}
+                  viewUrl={file.url}
+                  deleting={deletingKey === `file-${file.id}`}
+                  onDelete={() => {
+                    void handleDeleteFile(file);
+                  }}
+                />
+              ))}
+            </div>
+          ) : null}
+        </div>
 
         <label className="flex flex-col gap-3">
           <span className="form-col-label col-sm-4">وضعیت انبار</span>
@@ -493,9 +636,12 @@ export function ProductForm({ formData, initial, onSubmit, pending = false, subm
         <input type="hidden" name="long_description" value={longDescription} required />
       </div>
 
-      <Button type="submit" variant="admin" size="lg" disabled={pending} className="w-max disabled:opacity-50">
-        {submitLabel}
-      </Button>
+      <div className="flex flex-col items-between gap-3 md:flex-row md:items-center">
+        <Button type="submit" variant="admin" size="lg" disabled={pending} className="w-max disabled:opacity-50">
+          {submitLabel}
+        </Button>
+        {footer}
+      </div>
     </form>
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { addToCart } from "@/lib/cart-api";
 import { useCart } from "@/lib/cart-context";
 import type { ProductCard } from "@/lib/types";
@@ -15,7 +15,7 @@ function formatPrice(product: ProductCard): string {
   if (product.is_free) {
     return "رایگان";
   }
-  return `${formatNumber(product.final_price)} ریال`;
+  return `${formatNumber(product.final_price)} تومان`;
 }
 
 type ProductCardProps = {
@@ -26,8 +26,18 @@ export function ProductCard({ product }: ProductCardProps) {
   const imageUrl = product.image?.url ?? DEFAULT_IMAGE;
   const category = product.category;
   const [inCart, setInCart] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(false);
   const [cartPending, startCartTransition] = useTransition();
   const { setCount } = useCart();
+  const imageRef = useRef<HTMLImageElement>(null);
+
+  useEffect(() => {
+    setImageLoaded(false);
+    const img = imageRef.current;
+    if (img?.complete && img.naturalWidth > 0) {
+      setImageLoaded(true);
+    }
+  }, [imageUrl]);
 
   function handleAddToCart() {
     startCartTransition(async () => {
@@ -53,15 +63,24 @@ export function ProductCard({ product }: ProductCardProps) {
       <div className="flex w-full flex-col items-center justify-between gap-2 overflow-hidden rounded-xl bg-white text-center transition-all duration-500 dark:bg-[#1A1A18]">
         <Link
           href={product.url}
-          className="mt-4 overflow-hidden rounded-lg"
-          style={{ width: "90%" }}
+          className="relative mt-4 aspect-square w-[90%] overflow-hidden rounded-lg"
         >
+          {!imageLoaded ? (
+            <div
+              aria-hidden
+              className="absolute inset-0 animate-pulse rounded-lg bg-stone-200 dark:bg-[#2A2A26]"
+            />
+          ) : null}
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
+            ref={imageRef}
             src={imageUrl}
             alt={product.name}
             loading="lazy"
-            className="w-full"
+            className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-300 ${
+              imageLoaded ? "opacity-100" : "opacity-0"
+            }`}
+            onLoad={() => setImageLoaded(true)}
             onError={(e) => {
               e.currentTarget.src = DEFAULT_IMAGE;
             }}

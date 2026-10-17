@@ -4,6 +4,19 @@ import { withSentryConfig } from "@sentry/nextjs";
 const nextConfig: NextConfig = {
   // Required for the production Docker image (copies only the runtime server).
   output: "standalone",
+  async rewrites() {
+    const apiBase =
+      process.env.API_INTERNAL_URL?.trim() ||
+      process.env.NEXT_PUBLIC_API_URL?.trim() ||
+      "http://localhost:8000";
+
+    return [
+      {
+        source: "/sitemap/:path*",
+        destination: `${apiBase}/sitemap/:path*`,
+      },
+    ];
+  },
   images: {
     remotePatterns: [
       {

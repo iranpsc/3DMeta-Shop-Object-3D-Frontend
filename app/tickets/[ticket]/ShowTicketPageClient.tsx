@@ -18,12 +18,6 @@ function avatarSrc(avatar: string | null | undefined) {
   return `${getApiBaseUrl()}/storage/${avatar}`;
 }
 
-function attachmentHref(path: string | null | undefined) {
-  if (!path) return null;
-  if (path.startsWith("http")) return path;
-  return `${getApiBaseUrl()}/storage/${path}`;
-}
-
 function priorityBadgeClass(priority: string) {
   switch (priority) {
     case "high":
@@ -105,7 +99,7 @@ export default function ShowTicketPageClient({ ticketId }: { ticketId: number })
     );
   }
 
-  const attachmentUrl = attachmentHref(ticket.attachment);
+  const attachmentUrl = ticket.attachment_url ?? null;
 
   return (
     <PageWrapper title="جزئیات تیکت">
@@ -205,7 +199,7 @@ export default function ShowTicketPageClient({ ticketId }: { ticketId: number })
                 <a
                   href={attachmentUrl}
                   target="_blank"
-                  rel="noopener noreferrer"
+                  rel="noopener"
                   className="group flex items-center gap-3 rounded-xl border border-[#E8EEF8] bg-[#F7FAFF] p-4 transition hover:border-[#000BEE]/30 hover:bg-[#EEF3FF] dark:border-[#2A2A28] dark:bg-[#111110] dark:hover:border-[#E59819]/40 dark:hover:bg-[#1F1A12]"
                 >
                   <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#000BEE]/10 text-[#000BEE] dark:bg-[#E59819]/15 dark:text-[#E59819]">
@@ -270,6 +264,16 @@ export default function ShowTicketPageClient({ ticketId }: { ticketId: number })
                     <p className="whitespace-pre-wrap text-[15px] font-normal leading-7 text-[#5B6577] dark:text-gray-300">
                       {response.message}
                     </p>
+                    {response.attachment_url ? (
+                      <a
+                        href={response.attachment_url}
+                        target="_blank"
+                        rel="noopener"
+                        className="mt-2 inline-flex items-center gap-1 text-xs font-bold text-[#000BEE] hover:underline dark:text-[#E59819]"
+                      >
+                        📎 {response.attachment_name ?? "فایل پیوست"}
+                      </a>
+                    ) : null}
                   </div>
                 </article>
               ))

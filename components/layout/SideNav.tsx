@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { apiFetch, getApiBaseUrl } from "@/lib/api-client";
+import { useAuth } from "@/lib/auth-context";
 import type { AuthUser } from "@/lib/auth";
 import type { CategorySummary } from "@/lib/types";
 import {
@@ -65,8 +66,23 @@ export function SideNav({
   onLogin,
   onLogout,
 }: SideNavProps) {
+  const { status } = useAuth();
   const [categories, setCategories] = useState<CategorySummary[]>([]);
+  const [submitting, setSubmitting] = useState(false);
+  const authBusy = status === "loading" || submitting;
   const userAvatar = avatarUrl(user?.avatar);
+
+  function handleLogin() {
+    if (authBusy) return;
+    setSubmitting(true);
+    onLogin();
+  }
+
+  function handleLogout() {
+    if (authBusy) return;
+    setSubmitting(true);
+    void Promise.resolve(onLogout()).catch(() => setSubmitting(false));
+  }
 
   useEffect(() => {
     let cancelled = false;
@@ -148,7 +164,13 @@ export function SideNav({
                         ) : (
                           <>
                             <div className="h-7 w-7 rounded-full bg-gray-300" />
-                            <Button variant="unstyled" onClick={onLogin}>
+                            <Button
+                              variant="unstyled"
+                              onClick={handleLogin}
+                              disabled={authBusy}
+                              aria-busy={authBusy}
+                              className="disabled:cursor-not-allowed disabled:opacity-60"
+                            >
                               ورود کاربر
                             </Button>
                           </>
@@ -367,7 +389,9 @@ export function SideNav({
                 variant="primary"
                 fullWidth
                 aria-label="login"
-                onClick={onLogin}
+                aria-busy={authBusy}
+                disabled={authBusy}
+                onClick={handleLogin}
                 className="cursor-pointer justify-between p-[10px] px-6 font-bold"
               >
                 <LoginIcon className="h-7 w-7" />
@@ -378,7 +402,9 @@ export function SideNav({
                 variant="danger"
                 fullWidth
                 aria-label="logout"
-                onClick={onLogout}
+                aria-busy={authBusy}
+                disabled={authBusy}
+                onClick={handleLogout}
                 className="cursor-pointer p-[10px] px-6 font-bold"
               >
                 <div className="flex w-full items-center justify-between">
@@ -449,17 +475,24 @@ export function SideNav({
               ) : (
                 <Button
                   variant="unstyled"
-                  onClick={onLogin}
+                  onClick={handleLogin}
+                  disabled={authBusy}
+                  aria-busy={authBusy}
                   aria-label="profile"
-                  className="w-full rounded-full bg-gray-300"
+                  className="w-full rounded-full bg-gray-300 disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   <GuestAvatarIcon />
                 </Button>
               )}
             </div>
-            <div className="h-7 w-7">
-              <Link href="/cart" aria-label="cart" className="w-full">
+            <div className="relative h-7 w-7">
+              <Link href="/cart" aria-label={`سبد خرید، ${cartCount} کالا`} className="relative block w-full">
                 <CartIcon className="h-7 w-7" fill="#868B90" />
+                {cartCount > 0 ? (
+                  <span className="absolute -end-1.5 -top-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#FF5722] px-1 text-[10px] font-bold leading-none text-white">
+                    {cartCount > 99 ? "99+" : cartCount}
+                  </span>
+                ) : null}
               </Link>
             </div>
           </div>
@@ -503,7 +536,9 @@ export function SideNav({
               {!user ? (
                 <Button
                   variant="primary"
-                  onClick={onLogin}
+                  onClick={handleLogin}
+                  disabled={authBusy}
+                  aria-busy={authBusy}
                   aria-label="login"
                   className="flex h-10 w-full cursor-pointer items-center justify-center !p-2 font-bold"
                 >
@@ -512,7 +547,9 @@ export function SideNav({
               ) : (
                 <Button
                   variant="danger"
-                  onClick={onLogout}
+                  onClick={handleLogout}
+                  disabled={authBusy}
+                  aria-busy={authBusy}
                   aria-label="logout"
                   className="flex h-10 w-full cursor-pointer items-center justify-center !p-2 font-bold"
                 >

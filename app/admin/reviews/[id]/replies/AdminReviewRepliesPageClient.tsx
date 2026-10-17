@@ -5,6 +5,7 @@ import { formatAdminDate } from "@/components/admin/admin-utils";
 import { FormTextarea } from "@/components/form/textarea";
 import { Button } from "@/components/ui/button";
 import { confirmDialog } from "@/components/ui/confirm-dialog";
+import { Modal } from "@/components/ui/modal";
 import { PageWrapper } from "@/components/ui/page-wrapper";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { showErrorToast, showSuccessToast } from "@/components/ui/toast";
@@ -13,6 +14,7 @@ import {
   createAdminReviewReply,
   deleteAdminReviewReply,
   fetchAdminReviewReplies,
+  updateAdminReviewReply,
 } from "@/lib/admin-api";
 import type { AdminReview, AdminReviewReply } from "@/lib/types";
 
@@ -24,6 +26,8 @@ export default function AdminReviewRepliesPageClient({ reviewId }: AdminReviewRe
   const [review, setReview] = useState<AdminReview | null>(null);
   const [replies, setReplies] = useState<AdminReviewReply[]>([]);
   const [comment, setComment] = useState("");
+  const [editing, setEditing] = useState<AdminReviewReply | null>(null);
+  const [editComment, setEditComment] = useState("");
   const [pending, startTransition] = useTransition();
 
   const loadReplies = useCallback(() => {
@@ -60,6 +64,25 @@ export default function AdminReviewRepliesPageClient({ reviewId }: AdminReviewRe
         loadReplies();
       } catch {
         showErrorToast("تایید پاسخ با خطا مواجه شد.");
+      }
+    });
+  }
+
+  function openEdit(reply: AdminReviewReply) {
+    setEditing(reply);
+    setEditComment(reply.comment);
+  }
+
+  function handleUpdate() {
+    if (!editing) return;
+    startTransition(async () => {
+      try {
+        const msg = await updateAdminReviewReply(editing.id, editComment);
+        showSuccessToast(msg ?? "پاسخ ویرایش شد و در انتظار تایید مجدد است.");
+        setEditing(null);
+        loadReplies();
+      } catch {
+        showErrorToast("ویرایش پاسخ با خطا مواجه شد.");
       }
     });
   }
@@ -137,10 +160,14 @@ export default function AdminReviewRepliesPageClient({ reviewId }: AdminReviewRe
                       تایید
                     </Button>
                   ) : null}
+                  <Button variant="admin" size="sm" disabled={pending} onClick={() => openEdit(reply)}>
+                    ویرایش
+                  </Button>
                   <Button
                     variant="danger"
                     size="sm"
-                    disabled={pending}
+                    disabled={pending || reply.approved}
+                    title={reply.approved ? "پاسخ تایید شده قابل حذف نیست" : undefined}
                     onClick={() => handleDelete(reply.id)}
                   >
                     حذف
@@ -151,6 +178,35 @@ export default function AdminReviewRepliesPageClient({ reviewId }: AdminReviewRe
           ))}
         </TableBody>
       </Table>
+
+      <Modal
+        open={editing !== null}
+        title="ویرایش پاسخ"
+        onClose={() => setEditing(null)}
+        footer={
+          <div className="flex gap-3">
+            <Button
+              variant="admin"
+              onClick={handleUpdate}
+              disabled={pending || editComment.trim().length < 3}
+            >
+              ذخیره
+            </Button>
+            <Button variant="danger" onClick={() => setEditing(null)}>
+              بستن
+            </Button>
+          </div>
+        }
+      >
+        <FormTextarea
+          name="reply-comment"
+          label="متن"
+          value={editComment}
+          onChange={(event) => setEditComment(event.target.value)}
+          rows={4}
+          wrapperClassName="min-w-[min(100%,32rem)]"
+        />
+      </Modal>
     </PageWrapper>
   );
 }

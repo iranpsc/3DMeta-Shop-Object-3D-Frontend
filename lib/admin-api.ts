@@ -74,6 +74,20 @@ export async function deleteAdminProduct(productId: number): Promise<string | un
   return res.message ?? undefined;
 }
 
+export async function deleteAdminProductImage(productId: number, imageId: number): Promise<AdminProduct> {
+  const res = await apiFetch<AdminProduct>(`/api/v1/admin/products/${productId}/images/${imageId}`, {
+    method: "DELETE",
+  });
+  return res.data;
+}
+
+export async function deleteAdminProductFile(productId: number, fileId: number): Promise<AdminProduct> {
+  const res = await apiFetch<AdminProduct>(`/api/v1/admin/products/${productId}/files/${fileId}`, {
+    method: "DELETE",
+  });
+  return res.data;
+}
+
 export async function importAdminProducts(file: File): Promise<string | undefined> {
   const form = new FormData();
   form.append("file", file);
@@ -157,6 +171,17 @@ export async function createAdminAttribute(payload: {
   return { attribute: res.data, message: res.message ?? undefined };
 }
 
+export async function updateAdminAttribute(
+  attributeId: number,
+  payload: { name: string; slug: string },
+): Promise<{ attribute: AdminAttribute; message?: string }> {
+  const res = await apiFetch<AdminAttribute>(`/api/v1/admin/attributes/${attributeId}`, {
+    method: "PUT",
+    body: JSON.stringify(payload),
+  });
+  return { attribute: res.data, message: res.message ?? undefined };
+}
+
 export async function deleteAdminAttribute(attributeId: number): Promise<string | undefined> {
   const res = await apiFetch<null>(`/api/v1/admin/attributes/${attributeId}`, { method: "DELETE" });
   return res.message ?? undefined;
@@ -171,6 +196,17 @@ export async function fetchAdminReviews(page = 1): Promise<Paginated<AdminReview
 
 export async function approveAdminReview(reviewId: number): Promise<string | undefined> {
   const res = await apiFetch<AdminReview>(`/api/v1/admin/reviews/${reviewId}/approve`, { method: "POST" });
+  return res.message ?? undefined;
+}
+
+export async function updateAdminReview(
+  reviewId: number,
+  payload: { comment: string; rating: number },
+): Promise<string | undefined> {
+  const res = await apiFetch<AdminReview>(`/api/v1/admin/reviews/${reviewId}`, {
+    method: "PUT",
+    body: JSON.stringify(payload),
+  });
   return res.message ?? undefined;
 }
 
@@ -203,6 +239,14 @@ export async function createAdminReviewReply(
 export async function approveAdminReviewReply(replyId: number): Promise<string | undefined> {
   const res = await apiFetch<AdminReviewReply>(`/api/v1/admin/review-replies/${replyId}/approve`, {
     method: "POST",
+  });
+  return res.message ?? undefined;
+}
+
+export async function updateAdminReviewReply(replyId: number, comment: string): Promise<string | undefined> {
+  const res = await apiFetch<AdminReviewReply>(`/api/v1/admin/review-replies/${replyId}`, {
+    method: "PUT",
+    body: JSON.stringify({ comment }),
   });
   return res.message ?? undefined;
 }

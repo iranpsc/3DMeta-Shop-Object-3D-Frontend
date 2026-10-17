@@ -11,6 +11,8 @@ export type CategorySummary = {
   url: string;
   description?: string | null;
   products_count?: number;
+  children_with_products_count?: number;
+  deletable?: boolean;
   image?: ProductImage | null;
   parent?: {
     id: number;
@@ -36,6 +38,7 @@ export type TagSummary = {
   name: string;
   slug: string;
   url: string;
+  products_count?: number;
 };
 
 export type ProductCard = {
@@ -58,6 +61,7 @@ export type ProductCard = {
 export type ProductDetail = ProductCard & {
   short_description?: string | null;
   long_description?: string | null;
+  meta_description?: string | null;
   stock_status?: boolean;
   quantity?: number;
   customer_can_add_review?: boolean;
@@ -215,6 +219,7 @@ export type TicketItem = {
   response_status_label: string;
   attachment?: string | null;
   attachment_name?: string | null;
+  attachment_url?: string | null;
   created_at?: string | null;
   updated_at?: string | null;
   user?: { id: number; name: string; email: string; avatar?: string | null };
@@ -222,6 +227,8 @@ export type TicketItem = {
     id: number;
     message: string;
     attachment?: string | null;
+    attachment_name?: string | null;
+    attachment_url?: string | null;
     created_at?: string | null;
     user?: { id: number; name: string; avatar?: string | null };
   }>;
@@ -255,6 +262,7 @@ export type AdminProduct = ProductDetail & {
   delivery_time?: number | string | null;
   created_at?: string | null;
   category_id?: number;
+  sold?: boolean;
 };
 
 export type AdminProductFormData = {
