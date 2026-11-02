@@ -460,7 +460,7 @@ export function ProductForm({ formData, initial, onSubmit, pending = false, subm
             <input
               name="images[]"
               type="file"
-              accept="image/*"
+              accept="image/jpeg,image/png"
               multiple
               className={formControlClassName}
               {...(initial ? {} : { required: true })}
