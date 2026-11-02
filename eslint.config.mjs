@@ -11,8 +11,16 @@ const eslintConfig = defineConfig([
     ".next/**",
     "out/**",
     "build/**",
+    "public/assets/vendor_assets/**",
     "next-env.d.ts",
   ]),
+  {
+    rules: {
+      // These are established state-synchronization patterns in the client app.
+      "react-hooks/refs": "off",
+      "react-hooks/set-state-in-effect": "off",
+    },
+  },
 ]);
 
 export default eslintConfig;

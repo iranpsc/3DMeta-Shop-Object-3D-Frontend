@@ -10,7 +10,7 @@ type ResumableInstance = {
   assignDrop: (el: HTMLElement | HTMLElement[]) => void;
   upload: () => void;
   removeFile: (file: ResumableFile | { uniqueIdentifier: string }) => void;
-  on: (event: string, callback: (...args: any[]) => void) => void;
+  on: (event: string, callback: (...args: unknown[]) => void) => void;
 };
 
 type ResumableConstructor = new (options: Record<string, unknown>) => ResumableInstance;
